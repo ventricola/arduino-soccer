@@ -1,21 +1,45 @@
 #include <Wire.h> //include i2c library
-#include <LiquidCrystal_I2C.h> //include library for work with lcd display via i2c 
+#include <LiquidCrystal_I2C.h> //include library for work with lcd display via i2c
+#include <MsTimer2.h>
+
 #define GAME_START 0
 #define GAME_PERFORMED 1
 #define GAME_SIDE_OUT 2
 #define GAME_END_OUT 3
 #define GAME_OFFSIDE 4
 #define GAME_GOAL 9
+
+#define POT_PIN A15
+#define MODE_PIN 49
+#define SPEAKER_PIN 10
+#define SD_MISO_PIN 50
+#define SD_MOSI_PIN 51
+#define SD_SCK_PIN 52
+#define SD_SS_PIN 53
+#define LCD_SDA_PIN 20
+#define LCD_SCL_PIN 21
+
+#define B11_PIN A0
+#define B12_PIN A1
+#define B13_PIN A2
+#define B14_PIN A3
+#define B15_PIN A4
+#define B21_PIN A5
+#define B22_PIN A6
+#define B23_PIN A7
+#define B24_PIN A8
+#define B25_PIN A9
+
 class Button {
   public:
     Button(byte pin, byte timeButton);  // конструктор
     boolean flagPress;    // признак кнопка в нажатом состоянии
     boolean flagClick;    // признак нажатия кнопки (клик)
-    void  scanState();    // метод проверки состояние сигнала
-    void  filterAvarage(); // метод фильтрации сигнала по среднему значению
+    void scanState();    // метод проверки состояние сигнала
+    void filterAvarage(); // метод фильтрации сигнала по среднему значению
     void setPinTime(byte pin, byte timeButton); // метод установки номера вывода и времени (числа) подтверждения
   private:
-    byte  _buttonCount;    // счетчик подтверждений состояния кнопки
+    byte _buttonCount;    // счетчик подтверждений состояния кнопки
     byte _timeButton;      // время подтверждения состояния кнопки
     byte _pin;             // номер вывода кнопки
 };
@@ -83,6 +107,31 @@ Button::Button(byte pin, byte timeButton) {
   _timeButton = timeButton;
   pinMode(_pin, INPUT_PULLUP);  // определяем вывод кнопки как вход
 }
+
+volatile Button button11(B11_PIN, 15);
+volatile Button button12(B12_PIN, 15);
+volatile Button button13(B13_PIN, 15);
+volatile Button button14(B14_PIN, 15);
+volatile Button button15(B15_PIN, 15);
+volatile Button button21(B21_PIN, 15);
+volatile Button button22(B22_PIN, 15);
+volatile Button button23(B23_PIN, 15);
+volatile Button button24(B24_PIN, 15);
+volatile Button button25(B25_PIN, 15);
+
+void  timerInterupt() {
+  button11.scanState();  // вызов метода ожидания стабильного состояния для кнопки
+  button12.scanState();
+  button13.scanState();
+  button14.scanState();
+  button15.scanState();
+  button21.scanState();  // вызов метода ожидания стабильного состояния для кнопки
+  button22.scanState();
+  button23.scanState();
+  button24.scanState();
+  button25.scanState();
+}
+
 LiquidCrystal_I2C lcd(0x3f, 16, 2); // set the LCD address to 0x27 for a 16 chars and 2 line display
 
 int b11 = A0, b12 = A1, b13 = A2, b14 = A3, b15 = A4, b21 = A5, b22 = A6, b23 = A7, b24 = A8, b25 = A9, //buttons
@@ -109,7 +158,8 @@ int game = GAME_START,
 
 void setup() {
   // put your setup code here, to run once:
-  randomSeed(analogRead(A15));
+  MsTimer2::set(2, timerInterupt); // задаем период прерывания по таймеру 2 мс
+  MsTimer2::start();              // разрешаем прерывание по таймеру  randomSeed(analogRead(A15));
   lcd.init();
   // Print a message to the LCD.
   lcd.backlight();
@@ -121,22 +171,13 @@ void setup() {
   for (int i = 2; i <= 13; i++) { //init rgb leds
     pinMode(i, OUTPUT);
   }
-  digitalWrite(b11, INPUT_PULLUP);
-  digitalWrite(b12, INPUT_PULLUP);
-  digitalWrite(b13, INPUT_PULLUP);
-  digitalWrite(b14, INPUT_PULLUP);
-  digitalWrite(b15, INPUT_PULLUP);
-  digitalWrite(b21, INPUT_PULLUP);
-  digitalWrite(b22, INPUT_PULLUP);
-  digitalWrite(b23, INPUT_PULLUP);
-  digitalWrite(b24, INPUT_PULLUP);
-  digitalWrite(b25, INPUT_PULLUP);
-
 }
 
 void start_game() {
   game = 999;
   lcd.init();
+  button11.flagClick = 0;
+  button21.flagClick = 0;
   for (int j = 1000; j > 0; j = j - 100 ) {
     for (int i = 2; i <= 13; i++) { //init rgb leds
       digitalWrite(i, HIGH);
@@ -149,17 +190,17 @@ void start_game() {
     }
     delay(j);
 
-    if (analogRead(b11) < 100 && analogRead(b21) < 100) {
+    if (button11.flagClick == 1 && button21.flagClick == 1) {
       lcd.setCursor(0, 0); lcd.print("Both plrs false start!");
       return;
     }
-    else if (analogRead(b21) < 100) {
+    else if (button21.flagClick == 1) {
       lcd.setCursor(0, 0); lcd.print("Red plr false start! Green plr wins!");
       game = GAME_PERFORMED;
       x = 5; y = 2; vector = 1;
       return;
     }
-    else if (analogRead(b11) < 100) {
+    else if (button11.flagClick == 1) {
       lcd.setCursor(0, 0); lcd.print("Green plr false start! Red plr wins!");
       game = GAME_PERFORMED;
       x = 6; y = 2; vector = -1;
@@ -167,13 +208,13 @@ void start_game() {
     }
   }
   while (1) {
-    if (analogRead(b11) < analogRead(b21) && analogRead(b11) < 100) {
+    if (button11.flagClick == 1) {
       lcd.setCursor(0, 0); lcd.print("Green plr wins!");
       game = GAME_PERFORMED;
       x = 5; y = 2; vector = 1;
       return;
     }
-    else if (analogRead(b21) < analogRead(b11) && analogRead(b21) < 100) {
+    else if (button21.flagClick == 1) {
       lcd.setCursor(0, 0); lcd.print("Red plr wins!");
       game = GAME_PERFORMED;
       x = 6; y = 2; vector = -1;
@@ -183,19 +224,29 @@ void start_game() {
 }
 
 void in_game() {
+  button11.flagClick = 0;
+  button12.flagClick = 0;
+  button13.flagClick = 0;
+  button14.flagClick = 0;
+  button15.flagClick = 0;
+  button21.flagClick = 0;
+  button22.flagClick = 0;
+  button23.flagClick = 0;
+  button24.flagClick = 0;
+  button25.flagClick = 0;
   digitalWrite(field[x][y], HIGH);
   delay(1000);
   digitalWrite(field[x][y], LOW );
-  if ((analogRead(b14) < 100) || (analogRead(b24) < 100)) {
+  if ((button14.flagClick == 1) || (button24.flagClick == 1)) {
     x = x +  vector;
   }
-  if ((analogRead(b13) < 100) || (analogRead(b23) < 100)) {
+  if ((button13.flagClick == 1) || (button23.flagClick == 1)) {
     x = x -  vector;
   }
-  if ((analogRead(b22) < 100) || (analogRead(b12) < 100)) {
+  if ((button12.flagClick == 1) || (button22.flagClick == 1)) {
     y = y + vector;
   }
-  if ((analogRead(b15) < 100) || (analogRead(b25) < 100)) {
+  if ((button15.flagClick == 1) || (button25.flagClick == 1)) {
     y = y - vector;
   }
 }
