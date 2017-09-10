@@ -31,12 +31,49 @@
 #define B24_PIN A8
 #define B25_PIN A9
 
+#define L101_PIN 24
+#define L102_PIN 23
+#define L103_PIN 26
+#define L104_PIN 45
+#define L105_PIN 43
+#define L106_PIN 42
+#define L107_PIN 36
+#define L108_PIN 35
+#define L109_PIN 39
+#define L110_PIN 32
+#define L111_PIN 31
+#define L112_PIN 28
+#define L201_PIN 29
+#define L202_PIN 30
+#define L203_PIN 33
+#define L204_PIN 37
+#define L205_PIN 34
+#define L206_PIN 44
+#define L207_PIN 38
+#define L208_PIN 41
+#define L209_PIN 40
+#define L210_PIN 25
+#define L211_PIN 27
+#define L212_PIN 22
+#define L1R_PIN 2
+#define L1G_PIN 3
+#define L1B_PIN 4
+#define L2R_PIN 5
+#define L2G_PIN 6
+#define L2B_PIN 7
+#define L3R_PIN 8
+#define L3G_PIN 9
+#define L3B_PIN 10
+#define L4R_PIN 11
+#define L4G_PIN 12
+#define L4B_PIN 13
+
 class Button {
   public:
     Button(byte pin, byte timeButton);  // конструктор
     boolean flagPress;    // признак кнопка в нажатом состоянии
     boolean flagClick;    // признак нажатия кнопки (клик)
-    void scanState();    // метод проверки состояние сигнала
+    boolean scanState();    // метод проверки состояние сигнала
     void filterAvarage(); // метод фильтрации сигнала по среднему значению
     void setPinTime(byte pin, byte timeButton); // метод установки номера вывода и времени (числа) подтверждения
   private:
@@ -73,8 +110,8 @@ void Button::filterAvarage() {
 // при нажатой кнопке flagPress= true
 // при отжатой кнопке flagPress= false
 // при нажатии на кнопку flagClick= true
-void Button::scanState() {
-
+boolean Button::scanState() {
+  boolean _stateChanged = false;
   if ( flagPress != digitalRead(_pin) ) {
     //  состояние кнопки осталось прежним
     _buttonCount = 0; // сброс счетчика подтверждений
@@ -88,10 +125,12 @@ void Button::scanState() {
       // состояние кнопки стало устойчивым
       flagPress = ! flagPress; // инверсия признака состояния
       _buttonCount = 0; // сброс счетчика подтверждений
+      _stateChanged = true;
 
       if ( flagPress == true ) flagClick = true; // признак клика кнопки
     }
   }
+  return (_stateChanged);
 }
 // метод установки номера вывода и времени подтверждения
 void Button::setPinTime(byte pin, byte timeButton)  {
@@ -126,7 +165,7 @@ void  timerInterupt() {
   button13.scanState();
   button14.scanState();
   button15.scanState();
-  button21.scanState();  // вызов метода ожидания стабильного состояния для кнопки
+  button21.scanState();
   button22.scanState();
   button23.scanState();
   button24.scanState();
@@ -135,12 +174,15 @@ void  timerInterupt() {
 
 LiquidCrystal_I2C lcd(0x3f, 16, 2); // set the LCD address to 0x27 for a 16 chars and 2 line display
 
-int b11 = A0, b12 = A1, b13 = A2, b14 = A3, b15 = A4, b21 = A5, b22 = A6, b23 = A7, b24 = A8, b25 = A9, //buttons
-    l101 = 24, l102 = 23, l103 = 26, l104 = 45, l105 = 43, l106 = 42, l107 = 36, l108 = 35, l109 = 39, l110 = 32, //leds
-    l111 = 31, l112 = 28, l201 = 29, l202 = 30, l203 = 33, l204 = 37, l205 = 34, l206 = 44, l207 = 38, l208 = 41,
-    l209 = 40, l210 = 25, l211 = 27, l212 = 22,
-    l1r = 2, l1g = 3, l1b = 4, l2r = 5, l2g = 6, l2b = 7, l3r = 8, l3g = 9, l3b = 10, l4r = 11, l4g = 12, l4b = 13; //rgb leds
-int field[12][5] = {
+const int b11 = B11_PIN, b12 = B12_PIN, b13 = B13_PIN, b14 = B14_PIN, b15 = B15_PIN, b21 = B21_PIN, b22 = B22_PIN, b23 = B23_PIN, //buttons
+          b24 = B24_PIN, b25 = B25_PIN,
+          l101 = L101_PIN, l102 = L102_PIN, l103 = L103_PIN, l104 = L104_PIN, l105 = L105_PIN, l106 = L106_PIN, l107 = L107_PIN, //leds
+          l108 = L108_PIN, l109 = L109_PIN, l110 = L110_PIN, l111 = L111_PIN, l112 = L112_PIN, l201 = L201_PIN, l202 = L202_PIN,
+          l203 = L203_PIN, l204 = L204_PIN, l205 = L205_PIN, l206 = L206_PIN, l207 = L207_PIN, l208 = L208_PIN, l209 = L209_PIN,
+          l210 = L210_PIN, l211 = L211_PIN, l212 = L212_PIN,
+          l1r = L1R_PIN, l1g = L1G_PIN, l1b = L1B_PIN, l2r = L2R_PIN, l2g = L2G_PIN, l2b = L2B_PIN, l3r = L3R_PIN, l3g = L3G_PIN, //rgb leds
+          l3b = L3B_PIN, l4r = L4R_PIN, l4g = L4G_PIN, l4b = L4B_PIN;
+const int field[12][5] = {
   { -1, -1,   -1,   -1,   -1},
   { -1, 1,    l108, 3,    -1},
   { -1, l210, l204, l201, -1},
@@ -155,12 +197,18 @@ int field[12][5] = {
   { -1, -1,   -1,   -1,   -1}
 };
 int game = GAME_START,
-    x, y, vector;
+    x = -1, y = -1, vector = 0, xPrev = -1, yPrev = -1, vectorPrev = 0;
+unsigned long currentMillis = 0, previousMillis = 0;
+boolean ballkick = false;
 
 void setup() {
   // put your setup code here, to run once:
   MsTimer2::set(2, timerInterupt); // задаем период прерывания по таймеру 2 мс
-  MsTimer2::start();              // разрешаем прерывание по таймеру  
+  MsTimer2::start();              // разрешаем прерывание по таймеру
+
+  currentMillis = millis();
+  previousMillis = currentMillis;
+
   randomSeed(analogRead(RANDOMSEED_PIN));
   pinMode(SPEAKER_PIN, OUTPUT);
 
@@ -177,12 +225,38 @@ void setup() {
   }
 }
 
+void reset_buttons_flagClick() {
+  button11.flagClick = 0;
+  button12.flagClick = 0;
+  button13.flagClick = 0;
+  button14.flagClick = 0;
+  button15.flagClick = 0;
+  button21.flagClick = 0;
+  button22.flagClick = 0;
+  button23.flagClick = 0;
+  button24.flagClick = 0;
+  button25.flagClick = 0;
+}
+
+void newxy (int _x, int _y, int _vector) {
+  xPrev = x;
+  yPrev = y;
+  vectorPrev = vector;
+  x = _x;
+  y = _y;
+  vector = _vector;
+  currentMillis = millis();
+  previousMillis = currentMillis;
+  reset_buttons_flagClick();
+  digitalWrite(field[x][y], HIGH);
+  digitalWrite(field[xPrev][yPrev], LOW);
+}
+
 void start_game() {
   game = 999;
   lcd.init();
-  button11.flagClick = 0;
-  button21.flagClick = 0;
-  for (int j = 1000; j > 0; j = j - 100 ) {
+  reset_buttons_flagClick;
+  for (int j = random(100, 1000); j > 0; j = j - 100 ) {
     for (int i = 2; i <= 13; i++) { //init rgb leds
       digitalWrite(i, HIGH);
     }
@@ -201,58 +275,59 @@ void start_game() {
     else if (button21.flagClick == 1) {
       lcd.setCursor(0, 0); lcd.print("Red plr false start! Green plr wins!");
       game = GAME_PERFORMED;
-      x = 5; y = 2; vector = 1;
+      newxy(5, 2, 1);
       return;
     }
     else if (button11.flagClick == 1) {
       lcd.setCursor(0, 0); lcd.print("Green plr false start! Red plr wins!");
       game = GAME_PERFORMED;
-      x = 6; y = 2; vector = -1;
+      newxy(6, 2, -1);
       return;
     }
   }
   tone(SPEAKER_PIN, 3000, 250);
+  reset_buttons_flagClick;
   while (1) {
     if (button11.flagClick == 1) {
       lcd.setCursor(0, 0); lcd.print("Green plr wins!");
       game = GAME_PERFORMED;
-      x = 5; y = 2; vector = 1;
+      newxy(5, 2, 1);
       return;
     }
     else if (button21.flagClick == 1) {
       lcd.setCursor(0, 0); lcd.print("Red plr wins!");
       game = GAME_PERFORMED;
-      x = 6; y = 2; vector = -1;
+      newxy(6, 2, -1);
       return;
     }
   }
 }
 
 void in_game() {
-  button11.flagClick = 0;
-  button12.flagClick = 0;
-  button13.flagClick = 0;
-  button14.flagClick = 0;
-  button15.flagClick = 0;
-  button21.flagClick = 0;
-  button22.flagClick = 0;
-  button23.flagClick = 0;
-  button24.flagClick = 0;
-  button25.flagClick = 0;
-  digitalWrite(field[x][y], HIGH);
-  delay(1000);
-  digitalWrite(field[x][y], LOW );
+  currentMillis = millis();
+  if (!ballkick && ((currentMillis - previousMillis) >= 3000)) {
+    game = GAME_OFFSIDE;
+    return;
+  }
+  else if (ballkick && ((currentMillis - previousMillis) >= 300)) {
+    newxy(x + x - xPrev, y + y - yPrev, vector);
+    return;
+  }
   if ((button14.flagClick == 1) || (button24.flagClick == 1)) {
-    x = x +  vector;
+    newxy(x + vector, y, vector);
+    ballkick = true;
   }
   if ((button13.flagClick == 1) || (button23.flagClick == 1)) {
-    x = x -  vector;
+    newxy(x - vector, y, vector);
+    ballkick = true;
   }
   if ((button12.flagClick == 1) || (button22.flagClick == 1)) {
-    y = y + vector;
+    newxy(x, y + vector, vector);
+    ballkick = true;
   }
   if ((button15.flagClick == 1) || (button25.flagClick == 1)) {
-    y = y - vector;
+    newxy(x, y - vector, vector);
+    ballkick = true;
   }
 }
 
