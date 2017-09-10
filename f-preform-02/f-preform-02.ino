@@ -10,8 +10,9 @@
 #define GAME_GOAL 9
 
 #define POT_PIN A15
+#define RANDOMSEED_PIN A14
 #define MODE_PIN 49
-#define SPEAKER_PIN 10
+#define SPEAKER_PIN 46
 #define SD_MISO_PIN 50
 #define SD_MOSI_PIN 51
 #define SD_SCK_PIN 52
@@ -159,7 +160,10 @@ int game = GAME_START,
 void setup() {
   // put your setup code here, to run once:
   MsTimer2::set(2, timerInterupt); // задаем период прерывания по таймеру 2 мс
-  MsTimer2::start();              // разрешаем прерывание по таймеру  randomSeed(analogRead(A15));
+  MsTimer2::start();              // разрешаем прерывание по таймеру  
+  randomSeed(analogRead(RANDOMSEED_PIN));
+  pinMode(SPEAKER_PIN, OUTPUT);
+
   lcd.init();
   // Print a message to the LCD.
   lcd.backlight();
@@ -207,6 +211,7 @@ void start_game() {
       return;
     }
   }
+  tone(SPEAKER_PIN, 3000, 250);
   while (1) {
     if (button11.flagClick == 1) {
       lcd.setCursor(0, 0); lcd.print("Green plr wins!");
