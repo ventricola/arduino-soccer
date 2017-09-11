@@ -9,6 +9,9 @@
 #define GAME_OFFSIDE 4
 #define GAME_GOAL 9
 
+#define GREENS 1
+#define REDS -1
+
 #define POT_PIN A15
 #define RANDOMSEED_PIN A14
 #define MODE_PIN 49
@@ -275,13 +278,13 @@ void start_game() {
     else if (button21.flagClick == 1) {
       lcd.setCursor(0, 0); lcd.print("Red plr false start! Green plr wins!");
       game = GAME_PERFORMED;
-      newxy(5, 2, 1);
+      newxy(5, 2, GREENS);
       return;
     }
     else if (button11.flagClick == 1) {
       lcd.setCursor(0, 0); lcd.print("Green plr false start! Red plr wins!");
       game = GAME_PERFORMED;
-      newxy(6, 2, -1);
+      newxy(6, 2, REDS);
       return;
     }
   }
@@ -291,13 +294,13 @@ void start_game() {
     if (button11.flagClick == 1) {
       lcd.setCursor(0, 0); lcd.print("Green plr wins!");
       game = GAME_PERFORMED;
-      newxy(5, 2, 1);
+      newxy(5, 2, GREENS);
       return;
     }
     else if (button21.flagClick == 1) {
       lcd.setCursor(0, 0); lcd.print("Red plr wins!");
       game = GAME_PERFORMED;
-      newxy(6, 2, -1);
+      newxy(6, 2, REDS);
       return;
     }
   }
