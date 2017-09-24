@@ -1,4 +1,4 @@
-#include <Wire.h> //include i2c library
+#include <Wire.h> //include  i2c library
 #include <LiquidCrystal_I2C.h> //include library for work with lcd display via i2c
 #include <MsTimer2.h>
 
