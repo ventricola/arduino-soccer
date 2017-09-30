@@ -53,6 +53,8 @@
 #define L210_PIN 25
 #define L211_PIN 27
 #define L212_PIN 22
+#define LMIN_PIN 22
+#define LMAX_PIN 45
 #define L1R_PIN 2
 #define L1G_PIN 3
 #define L1B_PIN 4
@@ -244,12 +246,12 @@ void setup()
     // Print a message to the LCD.
     lcd.backlight();
     // lcd.setCursor(0, 1); lcd.print(field[8][2]);
-    for (int i = 22; i <= 45; i++)
+    for (int i = LMIN_PIN i <= LMAX_PIN; i++)
     {
         // init common leds
         pinMode(i, OUTPUT);
     }
-    for (int i = 2; i <= 13; i++)
+    for (int i = L1R_PIN; i <= L4B_PIN; i++)
     {
         // init rgb leds
         pinMode(i, OUTPUT);
@@ -292,13 +294,13 @@ void start_game()
     reset_buttons_flagClick;
     for (int j = random(100, 1000); j > 0; j = j - 100)
     {
-        for (int i = 2; i <= 13; i++)
+        for (int i = L1R_PIN; i <= L4B_PIN; i++)
         {
             // init rgb leds
             digitalWrite(i, HIGH);
         }
         delay(j);
-        for (int i = 2; i <= 13; i++)
+        for (int i = L1R_PIN; i <= L4B_PIN; i++)
         {
             // init rgb leds
             // lcd.setCursor(12, 1); lcd.print(analogRead(b11));
