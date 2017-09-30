@@ -180,7 +180,7 @@ void timerInterupt()
 }
 
 LiquidCrystal_I2C lcd(0x27, 16, 2); // set the LCD address to 0x27 for a 16 chars and 2 line display
-//LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, 1);
+// LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, 1);
 const int b11 = B11_PIN, b12 = B12_PIN, b13 = B13_PIN, b14 = B14_PIN, b15 = B15_PIN, b21 = B21_PIN, b22 = B22_PIN, b23 = B23_PIN, // buttons
 b24 = B24_PIN, b25 = B25_PIN,
 l101 = L101_PIN, l102 = L102_PIN, l103 = L103_PIN, l104 = L104_PIN, l105 = L105_PIN, l106 = L106_PIN, l107 = L107_PIN, // leds
@@ -283,8 +283,26 @@ void newxy(int _x, int _y, int _vector)
     currentMillis = millis();
     previousMillis = currentMillis;
     reset_buttons_flagClick();
-    digitalWrite(field[x][y], HIGH);
+    if (field[x][y] != -1)
+    {
+        digitalWrite(field[x][y], HIGH); // проверка наличия светодиода в новой координате
+    }
     digitalWrite(field[xPrev][yPrev], LOW);
+    if (y == 0 || y == 4)
+    {
+        game = GAME_SIDE_OUT;
+        return;
+    }
+    if (y == 2 && (x == 0 || x == 11))
+    {
+        game = GAME_GOAL;
+        return;
+    }
+    if (y == 2 && (x == 0 || x == 11))
+    {
+        game = GAME_END_OUT;
+        return;
+    }
 }
 
 void start_game()
