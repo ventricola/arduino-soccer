@@ -246,7 +246,7 @@ void setup()
     // Print a message to the LCD.
     lcd.backlight();
     // lcd.setCursor(0, 1); lcd.print(field[8][2]);
-    for (int i = LMIN_PIN i <= LMAX_PIN; i++)
+    for (int i = LMIN_PIN; i <= LMAX_PIN; i++)
     {
         // init common leds
         pinMode(i, OUTPUT);
@@ -449,10 +449,11 @@ void side()
             {
                 newxy(2, 1, REDS);
             }
-            elif(x == 4 || x == 5 || x == 6)
-            {
-                newxy(4, 1, REDS);
-            }
+            else
+                if (x == 4 || x == 5 || x == 6)
+                {
+                    newxy(4, 1, REDS);
+                }
             else // если х = 7, 8, 9
             {
                 newxy(8, 1, REDS);
@@ -464,10 +465,11 @@ void side()
             {
                 newxy(2, 3, REDS);
             }
-            elif(x == 4 || x == 5 || x == 6)
-            {
-                newxy(4, 3, REDS);
-            }
+            else
+                if (x == 4 || x == 5 || x == 6)
+                {
+                    newxy(4, 3, REDS);
+                }
             else // если x= 7, 8, 9
             {
                 newxy(8, 3, REDS);
@@ -482,10 +484,11 @@ void side()
             {
                 newxy(9, 1, GREENS);
             }
-            elif(x == 5 || x == 6 || x == 7)
-            {
-                newxy(7, 1, GREENS);
-            }
+            else
+                if (x == 5 || x == 6 || x == 7)
+                {
+                    newxy(7, 1, GREENS);
+                }
             else
             {
                 newxy(3, 1, GREENS);
@@ -497,64 +500,67 @@ void side()
             {
                 newxy(9, 4, GREENS);
             }
-            elif(x == 5 || x == 6 || x == 7)
-            {
-                newxy(7, 4, GREENS);
-            }
+            else
+                if (x == 5 || x == 6 || x == 7)
+                {
+                    newxy(7, 4, GREENS);
+                }
             else
             {
                 newxy(3, 4, GREENS);
             }
         }
     }
-    void loop()
+}
+
+void loop()
+{
+    // put your main code here, to run repeatedly:
+    switch (game)
     {
-        // put your main code here, to run repeatedly:
-        switch (game)
+        case GAME_START:
+            start_game();
+            /*#define GAME_SIDE_OUT 2
+            #define GAME_END_OUT 3
+            #define GAME_OFFSIDE 4
+            #define GAME_GOAL 9
+            */
+            break;
+        case GAME_PERFORMED:
+            in_game();
+            // выполняется когда  var равно 2
+            break;
+        case GAME_SIDE_OUT:
+            side();
+            // выход мяча за поле в сторону
+            break;
+        case GAME_GOAL:
+            goal();
+            // выполняется, когда противнику забит гол
+            break;
+        default:
+        // выполняется, если не выбрана ни одна альтернатива
+        // default необязателен
+        for (int i = 2; i <= 13; i++)
         {
-            case GAME_START:
-                start_game();
-                /*#define GAME_SIDE_OUT 2
-                #define GAME_END_OUT 3
-                #define GAME_OFFSIDE 4
-                #define GAME_GOAL 9
-                */
-                break;
-            case GAME_PERFORMED:
-                in_game();
-                // выполняется когда  var равно 2
-                break;
-                case GAME_SIDE_OUT;
-                side();
-                // выход мяча за поле в сторону
-                break;
-            case GAME_GOAL:
-                goal();
-                // выполняется, когда противнику забит гол
-                break;
-            default:
-            // выполняется, если не выбрана ни одна альтернатива
-            // default необязателен
-            for (int i = 2; i <= 13; i++)
-            {
-                lcd.setCursor(2, 1);
-                lcd.print(millis() / 1000);
-                digitalWrite(i, HIGH); // turn the LED on (HIGH is the voltage level)
-                delay(1000); // wait for a second
-                digitalWrite(i, LOW); // turn the LED off by making the voltage LOW
-                delay(1000); // wait for a second
-            }
-            for (int i = 22; i <= 45; i++)
-            {
-                lcd.setCursor(2, 1);
-                lcd.print(millis() / 1000);
-                digitalWrite(i, HIGH); // turn the LED on (HIGH is the voltage level)
-                delay(1000); // wait for a second
-                digitalWrite(i, LOW); // turn the LED off by making the voltage LOW
-                delay(1000); // wait for a second
-                // if (i == 45) {
-                // i = 22;
-                // }
-            }
+            lcd.setCursor(2, 1);
+            lcd.print(millis() / 1000);
+            digitalWrite(i, HIGH); // turn the LED on (HIGH is the voltage level)
+            delay(1000); // wait for a second
+            digitalWrite(i, LOW); // turn the LED off by making the voltage LOW
+            delay(1000); // wait for a second
+        }
+        for (int i = 22; i <= 45; i++)
+        {
+            lcd.setCursor(2, 1);
+            lcd.print(millis() / 1000);
+            digitalWrite(i, HIGH); // turn the LED on (HIGH is the voltage level)
+            delay(1000); // wait for a second
+            digitalWrite(i, LOW); // turn the LED off by making the voltage LOW
+            delay(1000); // wait for a second
+            // if (i == 45) {
+            // i = 22;
+            // }
         }
     }
+}
