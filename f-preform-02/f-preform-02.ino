@@ -229,7 +229,7 @@ const int field[12][5] =
     }
 };
 
-int game = GAME_START,
+int game = GAME_START, rScore = 0, gScore = 0,
 x = -1, y = -1, vector = 0, xPrev = -1, yPrev = -1, vectorPrev = 0;
 unsigned long currentMillis = 0, previousMillis = 0;
 boolean ballkick = false;
@@ -411,46 +411,150 @@ void in_game()
     }
 }
 
-void loop()
+void goal()
 {
-    // put your main code here, to run repeatedly:
-    switch (game)
+    currentMillis = millis();
+    previousMillis = currentMillis;
+    tone(SPEAKER_PIN, 3000, 250);
+    reset_buttons_flagClick;
+    ballkick = false;
+    game = GAME_PERFORMED;
+    lcd.setCursor(0, 0);
+    if (x == 0)
     {
-        case GAME_START:
-            start_game();
-            /*#define GAME_SIDE_OUT 2
-            #define GAME_END_OUT 3
-            #define GAME_OFFSIDE 4
-            #define GAME_GOAL 9
-            */
-            break;
-        case GAME_PERFORMED:
-            in_game();
-            // выполняется когда  var равно 2
-            break;
-        default:
-        // выполняется, если не выбрана ни одна альтернатива
-        // default необязателен
-        for (int i = 2; i <= 13; i++)
-        {
-            lcd.setCursor(2, 1);
-            lcd.print(millis() / 1000);
-            digitalWrite(i, HIGH); // turn the LED on (HIGH is the voltage level)
-            delay(1000); // wait for a second
-            digitalWrite(i, LOW); // turn the LED off by making the voltage LOW
-            delay(1000); // wait for a second
-        }
-        for (int i = 22; i <= 45; i++)
-        {
-            lcd.setCursor(2, 1);
-            lcd.print(millis() / 1000);
-            digitalWrite(i, HIGH); // turn the LED on (HIGH is the voltage level)
-            delay(1000); // wait for a second
-            digitalWrite(i, LOW); // turn the LED off by making the voltage LOW
-            delay(1000); // wait for a second
-            // if (i == 45) {
-            // i = 22;
-            // }
-        }
+        rScore++;
+        lcd.print("Red plr has scored!");
+        newxy(5, 2, GREENS);
+    }
+    else
+    {
+        gScore++;
+        lcd.print("Green plr has scored!");
+        newxy(6, 2, REDS);
     }
 }
+
+void side()
+{
+    currentMillis = millis();
+    previousMillis = currentMillis;
+    reset_buttons_flagClick();
+    ballkick = false;
+    game = GAME_PERFORMED;
+    if (vector == GREENS)
+    {
+        if (y == 0)
+        {
+            if (x == 1 || x == 2 || x == 3)
+            {
+                newxy(2, 1, REDS);
+            }
+            elif(x == 4 || x == 5 || x == 6)
+            {
+                newxy(4, 1, REDS);
+            }
+            else // если х = 7, 8, 9
+            {
+                newxy(8, 1, REDS);
+            }
+        }
+        else // если y= 4
+        {
+            if (x == 1 || x == 2 || x == 3)
+            {
+                newxy(2, 3, REDS);
+            }
+            elif(x == 4 || x == 5 || x == 6)
+            {
+                newxy(4, 3, REDS);
+            }
+            else // если x= 7, 8, 9
+            {
+                newxy(8, 3, REDS);
+            }
+        }
+    }
+    else // если вектор равен красным
+    {
+        if (y == 0)
+        {
+            if (x == 8 || x == 9 || x == 10)
+            {
+                newxy(9, 1, GREENS);
+            }
+            elif(x == 5 || x == 6 || x == 7)
+            {
+                newxy(7, 1, GREENS);
+            }
+            else
+            {
+                newxy(3, 1, GREENS);
+            }
+        }
+        else
+        {
+            if (x == 8 || x == 9 || x == 10)
+            {
+                newxy(9, 4, GREENS);
+            }
+            elif(x == 5 || x == 6 || x == 7)
+            {
+                newxy(7, 4, GREENS);
+            }
+            else
+            {
+                newxy(3, 4, GREENS);
+            }
+        }
+    }
+    void loop()
+    {
+        // put your main code here, to run repeatedly:
+        switch (game)
+        {
+            case GAME_START:
+                start_game();
+                /*#define GAME_SIDE_OUT 2
+                #define GAME_END_OUT 3
+                #define GAME_OFFSIDE 4
+                #define GAME_GOAL 9
+                */
+                break;
+            case GAME_PERFORMED:
+                in_game();
+                // выполняется когда  var равно 2
+                break;
+                case GAME_SIDE_OUT;
+                side();
+                // выход мяча за поле в сторону
+                break;
+            case GAME_GOAL:
+                goal();
+                // выполняется, когда противнику забит гол
+                break;
+            default:
+            // выполняется, если не выбрана ни одна альтернатива
+            // default необязателен
+            for (int i = 2; i <= 13; i++)
+            {
+                lcd.setCursor(2, 1);
+                lcd.print(millis() / 1000);
+                digitalWrite(i, HIGH); // turn the LED on (HIGH is the voltage level)
+                delay(1000); // wait for a second
+                digitalWrite(i, LOW); // turn the LED off by making the voltage LOW
+                delay(1000); // wait for a second
+            }
+            for (int i = 22; i <= 45; i++)
+            {
+                lcd.setCursor(2, 1);
+                lcd.print(millis() / 1000);
+                digitalWrite(i, HIGH); // turn the LED on (HIGH is the voltage level)
+                delay(1000); // wait for a second
+                digitalWrite(i, LOW); // turn the LED off by making the voltage LOW
+                delay(1000); // wait for a second
+                // if (i == 45) {
+                // i = 22;
+                // }
+            }
+        }
+    }
