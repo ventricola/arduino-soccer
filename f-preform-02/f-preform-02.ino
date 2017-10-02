@@ -1,6 +1,11 @@
 #include <Wire.h> //include  i2c library
 #include <LiquidCrystal_I2C.h> //include library for work with lcd display via i2c
 #include <MsTimer2.h>
+#include <SD.h> // need to include the SD library
+// #define SD_ChipSelectPin 53  //example uses hardware SS pin 53 on Mega2560
+// #define SD_ChipSelectPin 4  //using digital pin 4 on arduino nano 328, can use other pins
+#include <TMRpcm.h> //  also need to include this library...
+#include <SPI.h>
 #define GAME_START 0
 #define GAME_PERFORMED 1
 #define GAME_SIDE_OUT 2
@@ -165,6 +170,7 @@ volatile Button button22(B22_PIN, 15);
 volatile Button button23(B23_PIN, 15);
 volatile Button button24(B24_PIN, 15);
 volatile Button button25(B25_PIN, 15);
+TMRpcm tmrpcm; // create an object for use in this sketch
 void timerInterupt()
 {
     button11.scanState(); // вызов метода ожидания стабильного состояния для кнопки
@@ -181,7 +187,7 @@ void timerInterupt()
 
 LiquidCrystal_I2C lcd(0x27, 16, 2); // set the LCD address to 0x27 for a 16 chars and 2 line display
 // LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, 1);
-const int b11 = B11_PIN, b12 = B12_PIN, b13 = B13_PIN, b14 = B14_PIN, b15 = B15_PIN, b21 = B21_PIN, b22 = B22_PIN, b23 = B23_PIN, // buttons
+const char b11 = B11_PIN, b12 = B12_PIN, b13 = B13_PIN, b14 = B14_PIN, b15 = B15_PIN, b21 = B21_PIN, b22 = B22_PIN, b23 = B23_PIN, // buttons
 b24 = B24_PIN, b25 = B25_PIN,
 l101 = L101_PIN, l102 = L102_PIN, l103 = L103_PIN, l104 = L104_PIN, l105 = L105_PIN, l106 = L106_PIN, l107 = L107_PIN, // leds
 l108 = L108_PIN, l109 = L109_PIN, l110 = L110_PIN, l111 = L111_PIN, l112 = L112_PIN, l201 = L201_PIN, l202 = L202_PIN,
@@ -189,44 +195,20 @@ l203 = L203_PIN, l204 = L204_PIN, l205 = L205_PIN, l206 = L206_PIN, l207 = L207_
 l210 = L210_PIN, l211 = L211_PIN, l212 = L212_PIN,
 l1r = L1R_PIN, l1g = L1G_PIN, l1b = L1B_PIN, l2r = L2R_PIN, l2g = L2G_PIN, l2b = L2B_PIN, l3r = L3R_PIN, l3g = L3G_PIN, // rgb leds
 l3b = L3B_PIN, l4r = L4R_PIN, l4g = L4G_PIN, l4b = L4B_PIN;
-const int field[12][5] =
+const char field[12][5] =
 {
-    {
-        - 1, -1, -1, -1, -1
-    },
-    {
-        - 1, 1, l108, 3, -1
-    },
-    {
-        - 1, l210, l204, l201, -1
-    },
-    {
-        - 1, l103, l107, l112, -1
-    },
-    {
-        - 1, l211, l205, l202, -1
-    },
-    {
-        - 1, -1, l106, -1, -1
-    },
-    {
-        - 1, -1, l206, -1, -1
-    },
-    {
-        - 1, l102, l105, l111, -1
-    },
-    {
-        - 1, l212, l207, l203, -1
-    },
-    {
-        - 1, l101, l104, l110, -1
-    },
-    {
-        - 1, 2, l208, 4, -1
-    },
-    {
-        - 1, -1, -1, -1, -1
-    }
+    {        -1,    -1,   -1,   -1,   -1    },
+    {        -1,    1,    l108, 3,    -1    },
+    {        -1,    l210, l204, l201, -1    },
+    {        -1,    l103, l107, l112, -1    },
+    {        -1,    l211, l205, l202, -1    },
+    {        -1,    -1,   l106, -1,   -1    },
+    {        -1,    -1,   l206, -1,   -1    },
+    {        -1,    l102, l105, l111, -1    },
+    {        -1,    l212, l207, l203, -1    },
+    {        -1,    l101, l104, l110, -1    },
+    {        -1,    2,    l208, 4,    -1    },
+    {        -1,    -1,   -1,   -1,   -1    }
 };
 
 int game = GAME_START, rScore = 0, gScore = 0,
@@ -241,7 +223,7 @@ void setup()
     currentMillis = millis();
     previousMillis = currentMillis;
     randomSeed(analogRead(RANDOMSEED_PIN));
-    pinMode(SPEAKER_PIN, OUTPUT);
+    // pinMode(SPEAKER_PIN, OUTPUT);
     lcd.init();
     // Print a message to the LCD.
     lcd.backlight();
@@ -256,6 +238,15 @@ void setup()
         // init rgb leds
         pinMode(i, OUTPUT);
     }
+    tmrpcm.speakerPin = SPEAKER_PIN; // 5,6,11 or 46 on Mega, 9 on Uno, Nano, etc
+    Serial.begin(9600);
+    if (!SD.begin(SD_SS_PIN))
+    {
+        // see if the card is present and can be initialized:
+        Serial.println("SD fail");
+        return; // don't do anything more if not
+    }
+    // tmrpcm.play("music"); //the sound file "music" will play each time the arduino powers up, or is reset
 }
 
 void reset_buttons_flagClick()
@@ -310,6 +301,7 @@ void start_game()
     game = 999;
     lcd.init();
     reset_buttons_flagClick;
+    tmrpcm.play("ole.wav");
     for (int j = random(100, 1000); j > 0; j = j - 100)
     {
         for (int i = L1R_PIN; i <= L4B_PIN; i++)
@@ -351,7 +343,8 @@ void start_game()
                 return;
             }
     }
-    tone(SPEAKER_PIN, 3000, 250);
+    // tone(SPEAKER_PIN, 3000, 250);
+    tmrpcm.play("whistle.wav");
     reset_buttons_flagClick;
     while (1)
     {
@@ -454,12 +447,12 @@ void side()
                 {
                     newxy(4, 1, REDS);
                 }
-            else // если х = 7, 8, 9
+            else // если х==7,8,9
             {
                 newxy(8, 1, REDS);
             }
         }
-        else // если y= 4
+        else // если y==4
         {
             if (x == 1 || x == 2 || x == 3)
             {
@@ -470,7 +463,7 @@ void side()
                 {
                     newxy(4, 3, REDS);
                 }
-            else // если x= 7, 8, 9
+            else // если x==7,8,9
             {
                 newxy(8, 3, REDS);
             }
@@ -541,7 +534,8 @@ void loop()
         default:
         // выполняется, если не выбрана ни одна альтернатива
         // default необязателен
-        for (int i = 2; i <= 13; i++)
+        for (int i = L1R_PIN; i <= L4B_PIN; i++)
+        // мигнуть всеми цветами rgb светодиодов по очереди
         {
             lcd.setCursor(2, 1);
             lcd.print(millis() / 1000);
@@ -550,7 +544,8 @@ void loop()
             digitalWrite(i, LOW); // turn the LED off by making the voltage LOW
             delay(1000); // wait for a second
         }
-        for (int i = 22; i <= 45; i++)
+        for (int i = LMIN_PIN; i <= LMAX_PIN; i++)
+        // мигнуть по очереди остальными светодиодами
         {
             lcd.setCursor(2, 1);
             lcd.print(millis() / 1000);
@@ -558,9 +553,6 @@ void loop()
             delay(1000); // wait for a second
             digitalWrite(i, LOW); // turn the LED off by making the voltage LOW
             delay(1000); // wait for a second
-            // if (i == 45) {
-            // i = 22;
-            // }
         }
     }
 }
