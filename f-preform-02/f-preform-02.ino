@@ -185,8 +185,8 @@ void timerInterupt()
     button25.scanState();
 }
 
-LiquidCrystal_I2C lcd(0x3f, 16, 2); // set the LCD address to 0x27 for a 16 chars and 2 line display
-// LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, 1);
+//LiquidCrystal_I2C lcd(0x3f, 16, 2); // set the LCD address to 0x3f for a 16 chars and 2 line display in prototype board
+LiquidCrystal_I2C lcd(0x27, 16, 2); // set the LCD address to 0x27 for a 16 chars and 2 line display in Proteus
 const char b11 = B11_PIN, b12 = B12_PIN, b13 = B13_PIN, b14 = B14_PIN, b15 = B15_PIN, b21 = B21_PIN, b22 = B22_PIN, b23 = B23_PIN, // buttons
 b24 = B24_PIN, b25 = B25_PIN,
 l101 = L101_PIN, l102 = L102_PIN, l103 = L103_PIN, l104 = L104_PIN, l105 = L105_PIN, l106 = L106_PIN, l107 = L107_PIN, // leds
@@ -197,7 +197,7 @@ l1r = L1R_PIN, l1g = L1G_PIN, l1b = L1B_PIN, l2r = L2R_PIN, l2g = L2G_PIN, l2b =
 l3b = L3B_PIN, l4r = L4R_PIN, l4g = L4G_PIN, l4b = L4B_PIN;
 const char field[12][5] =
 {
-    {        -1,    -1,   -1,   -1,   -1    },
+    {        -1,    -1,   l109,   -1,   -1    },
     {        -1,    1,    l108, 3,    -1    },
     {        -1,    l210, l204, l201, -1    },
     {        -1,    l103, l107, l112, -1    },
@@ -208,7 +208,7 @@ const char field[12][5] =
     {        -1,    l212, l207, l203, -1    },
     {        -1,    l101, l104, l110, -1    },
     {        -1,    2,    l208, 4,    -1    },
-    {        -1,    -1,   -1,   -1,   -1    }
+    {        -1,    -1,   l209,   -1,   -1    }
 };
 
 int game = GAME_START, rScore = 0, gScore = 0,
@@ -289,7 +289,7 @@ void newxy(int _x, int _y, int _vector)
         game = GAME_GOAL;
         return;
     }
-    if (y == 2 && (x == 0 || x == 11))
+    if (y != 2 && (x == 0 || x == 11))
     {
         game = GAME_END_OUT;
         return;
@@ -298,7 +298,7 @@ void newxy(int _x, int _y, int _vector)
 
 void start_game()
 {
-    game = 999;
+    game = -1;
     lcd.init();
     reset_buttons_flagClick;
     tmrpcm.play("ole.wav");
@@ -321,14 +321,14 @@ void start_game()
         if (button11.flagClick == 1 && button21.flagClick == 1)
         {
             lcd.setCursor(0, 0);
-            lcd.print("Both plrs false start!");
+            lcd.print("Cross fail!");
             return;
         }
         else
             if (button21.flagClick == 1)
             {
                 lcd.setCursor(0, 0);
-                lcd.print("Red plr false start! Green plr wins!");
+                lcd.print("Reds fail!\nGreens win!");
                 game = GAME_PERFORMED;
                 newxy(5, 2, GREENS);
                 return;
@@ -337,13 +337,14 @@ void start_game()
             if (button11.flagClick == 1)
             {
                 lcd.setCursor(0, 0);
-                lcd.print("Green plr false start! Red plr wins!");
+                lcd.print("Greens fail!\nReds win!");
                 game = GAME_PERFORMED;
                 newxy(6, 2, REDS);
                 return;
             }
     }
     // tone(SPEAKER_PIN, 3000, 250);
+    tmrpcm.stopPlayback();
     tmrpcm.play("whistle.wav");
     reset_buttons_flagClick;
     while (1)
@@ -351,7 +352,7 @@ void start_game()
         if (button11.flagClick == 1)
         {
             lcd.setCursor(0, 0);
-            lcd.print("Green plr wins!");
+            lcd.print("Greens win!");
             game = GAME_PERFORMED;
             newxy(5, 2, GREENS);
             return;
@@ -360,7 +361,7 @@ void start_game()
             if (button21.flagClick == 1)
             {
                 lcd.setCursor(0, 0);
-                lcd.print("Red plr wins!");
+                lcd.print("Reds win!");
                 game = GAME_PERFORMED;
                 newxy(6, 2, REDS);
                 return;
@@ -408,7 +409,9 @@ void goal()
 {
     currentMillis = millis();
     previousMillis = currentMillis;
-    tone(SPEAKER_PIN, 3000, 250);
+    tmrpcm.stopPlayback();
+    tmrpcm.play("whistle.wav");
+    //tone(SPEAKER_PIN, 3000, 250);
     reset_buttons_flagClick;
     ballkick = false;
     game = GAME_PERFORMED;
@@ -416,13 +419,13 @@ void goal()
     if (x == 0)
     {
         rScore++;
-        lcd.print("Red plr has scored!");
+        lcd.print("Reds score!");
         newxy(5, 2, GREENS);
     }
     else
     {
         gScore++;
-        lcd.print("Green plr has scored!");
+        lcd.print("Greens score!");
         newxy(6, 2, REDS);
     }
 }
