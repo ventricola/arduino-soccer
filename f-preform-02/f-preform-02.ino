@@ -364,7 +364,7 @@ void start_game()
             if (button21.flagClick == 1)
             {
                 lcd.setCursor(0, 0);
-                lcd.print("Reds fail!      ")
+                lcd.print("Reds fail!      ");
                 lcd.setCursor(0, 1);
                 lcd.print("Greens win!     ");
                 game = GAME_PERFORMED;
@@ -375,7 +375,7 @@ void start_game()
             if (button11.flagClick == 1)
             {
                 lcd.setCursor(0, 0);
-                lcd.print("Greens fail!    ")
+                lcd.print("Greens fail!    ");
                 lcd.setCursor(0, 1);
                 lcd.print("Reds win!       ");
                 game = GAME_PERFORMED;
