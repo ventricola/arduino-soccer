@@ -253,7 +253,7 @@ void setup()
     // проверяем наличие файла "iarduino.txt" на SD-карте
     while (1)
     {
-        _rand=(unsigned long)random(-2147483648, 2147483647);
+        _rand=(unsigned long)random(999999);
         _filename = String(_rand, HEX)+".txt";
         if (SD.exists(_filename))
         {
@@ -357,14 +357,16 @@ void start_game()
         if (button11.flagClick == 1 && button21.flagClick == 1)
         {
             lcd.setCursor(0, 0);
-            lcd.print("Cross fail!");
+            lcd.print("Cross fail!     ");
             return;
         }
         else
             if (button21.flagClick == 1)
             {
                 lcd.setCursor(0, 0);
-                lcd.print("Reds fail!\nGreens win!");
+                lcd.print("Reds fail!      ")
+                lcd.setCursor(0, 1);
+                lcd.print("Greens win!     ");
                 game = GAME_PERFORMED;
                 newxy(5, 2, GREENS);
                 return;
@@ -373,7 +375,9 @@ void start_game()
             if (button11.flagClick == 1)
             {
                 lcd.setCursor(0, 0);
-                lcd.print("Greens fail!\nReds win!");
+                lcd.print("Greens fail!    ")
+                lcd.setCursor(0, 1);
+                lcd.print("Reds win!       ");
                 game = GAME_PERFORMED;
                 newxy(6, 2, REDS);
                 return;
@@ -388,7 +392,7 @@ void start_game()
         if (button11.flagClick == 1)
         {
             lcd.setCursor(0, 0);
-            lcd.print("Greens win!");
+            lcd.print("Greens win!     ");
             game = GAME_PERFORMED;
             newxy(5, 2, GREENS);
             return;
@@ -397,7 +401,7 @@ void start_game()
             if (button21.flagClick == 1)
             {
                 lcd.setCursor(0, 0);
-                lcd.print("Reds win!");
+                lcd.print("Reds win!   ");
                 game = GAME_PERFORMED;
                 newxy(6, 2, REDS);
                 return;
@@ -455,13 +459,13 @@ void goal()
     if (x == 0)
     {
         rScore++;
-        lcd.print("Reds score!");
+        lcd.print("Reds score!     ");
         newxy(5, 2, GREENS);
     }
     else
     {
         gScore++;
-        lcd.print("Greens score!");
+        lcd.print("Greens score!   ");
         newxy(6, 2, REDS);
     }
 }
