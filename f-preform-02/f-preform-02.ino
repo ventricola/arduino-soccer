@@ -186,8 +186,8 @@ void timerInterupt()
     button25.scanState();
 }
 
-// LiquidCrystal_I2C lcd(0x3f, 16, 2); // set the LCD address to 0x3f for a 16 chars and 2 line display in prototype board
-LiquidCrystal_I2C lcd(0x27, 16, 2); // set the LCD address to 0x27 for a 16 chars and 2 line display in Proteus
+LiquidCrystal_I2C lcd(0x3f, 16, 2); // set the LCD address to 0x3f for a 16 chars and 2 line display in prototype board
+//LiquidCrystal_I2C lcd(0x27, 16, 2); // set the LCD address to 0x27 for a 16 chars and 2 line display in Proteus
 const char b11 = B11_PIN, b12 = B12_PIN, b13 = B13_PIN, b14 = B14_PIN, b15 = B15_PIN, b21 = B21_PIN, b22 = B22_PIN, b23 = B23_PIN, // buttons
 b24 = B24_PIN, b25 = B25_PIN,
 l101 = L101_PIN, l102 = L102_PIN, l103 = L103_PIN, l104 = L104_PIN, l105 = L105_PIN, l106 = L106_PIN, l107 = L107_PIN, // leds
@@ -220,6 +220,7 @@ File logFile;
 void setup()
 {
     String _filename;
+    unsigned long _rand;
     // put your setup code here, to run once:
     MsTimer2::set(2, timerInterupt); // задаем период прерывания по таймеру 2 мс
     MsTimer2::start(); // разрешаем прерывание по таймеру
@@ -252,7 +253,8 @@ void setup()
     // проверяем наличие файла "iarduino.txt" на SD-карте
     while (1)
     {
-        _filename = String((unsigned long) random(-2147483648, 2147483647) + ".txt", HEX);
+        _rand=(unsigned long)random(-2147483648, 2147483647);
+        _filename = String(_rand, HEX)+".txt";
         if (SD.exists(_filename))
         {
             // если файл с именем "iarduino.txt" существует, то ...
