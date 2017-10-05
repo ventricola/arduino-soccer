@@ -5,7 +5,7 @@
 // #define SD_ChipSelectPin 53  //example uses hardware SS pin 53 on Mega2560
 // #define SD_ChipSelectPin 4  //using digital pin 4 on arduino nano 328, can use other pins
 #include <TMRpcm.h> //  also need to include this library...
-//uncomment //#define DISABLE_SPEAKER2 in pcmConfig.h to disable companion speaker on pin 45, used for l104!
+// uncomment //#define DISABLE_SPEAKER2 in pcmConfig.h to disable companion speaker on pin 45, used for l104!
 #include <SPI.h>
 #define GAME_START 0
 #define GAME_PERFORMED 1
@@ -186,7 +186,7 @@ void timerInterupt()
     button25.scanState();
 }
 
-//LiquidCrystal_I2C lcd(0x3f, 16, 2); // set the LCD address to 0x3f for a 16 chars and 2 line display in prototype board
+// LiquidCrystal_I2C lcd(0x3f, 16, 2); // set the LCD address to 0x3f for a 16 chars and 2 line display in prototype board
 LiquidCrystal_I2C lcd(0x27, 16, 2); // set the LCD address to 0x27 for a 16 chars and 2 line display in Proteus
 const char b11 = B11_PIN, b12 = B12_PIN, b13 = B13_PIN, b14 = B14_PIN, b15 = B15_PIN, b21 = B21_PIN, b22 = B22_PIN, b23 = B23_PIN, // buttons
 b24 = B24_PIN, b25 = B25_PIN,
@@ -198,7 +198,7 @@ l1r = L1R_PIN, l1g = L1G_PIN, l1b = L1B_PIN, l2r = L2R_PIN, l2g = L2G_PIN, l2b =
 l3b = L3B_PIN, l4r = L4R_PIN, l4g = L4G_PIN, l4b = L4B_PIN;
 const char field[12][5] =
 {
-    {        -1,    -1,   l109,   -1,   -1    },
+    {        -1,    -1,   l109, -1,   -1    },
     {        -1,    1,    l108, 3,    -1    },
     {        -1,    l210, l204, l201, -1    },
     {        -1,    l103, l107, l112, -1    },
@@ -209,7 +209,7 @@ const char field[12][5] =
     {        -1,    l212, l207, l203, -1    },
     {        -1,    l101, l104, l110, -1    },
     {        -1,    2,    l208, 4,    -1    },
-    {        -1,    -1,   l209,   -1,   -1    }
+    {        -1,    -1,   l209, -1,   -1    }
 };
 
 int game = GAME_START, rScore = 0, gScore = 0,
@@ -217,7 +217,6 @@ x = -1, y = -1, vector = 0, xPrev = -1, yPrev = -1, vectorPrev = 0;
 unsigned long currentMillis = 0, previousMillis = 0;
 boolean ballkick = false;
 File logFile;
-
 void setup()
 {
     String _filename;
@@ -250,31 +249,37 @@ void setup()
         Serial.println("SD fail");
         return; // don't do anything more if not
     }
-     //проверяем наличие файла "iarduino.txt" на SD-карте
-    while (1) {
-        _filename=String((unsigned long)random(-2147483648, 2147483647)+".txt",HEX);
-  if(SD.exists(_filename)){                   // если файл с именем "iarduino.txt" существует, то ...
-    Serial.println("File "+_filename+" exists! New turn!");
-  }else{                                           // иначе ...
-    lcd.setCursor(0,0);
-    lcd.print(_filename);
-    Serial.println("File "+_filename+" doesn't exist! Create new!");
-    logFile = SD.open(_filename, FILE_WRITE);
-    break;
-  }
-
-    //lcd.setCursor(0,0);
-    //lcd.print((unsigned long)-2147483648, HEX);
-    //lcd.setCursor(0,1);
-    //lcd.print((unsigned long)2147483647, HEX);
-    //delay(1000);
-    //lcd.setCursor(0,0);
-    //lcd.print((unsigned long)0, HEX);
-    //lcd.setCursor(0,1);
-    //lcd.print((unsigned long)-100, HEX);
-    //delay(1000);
-    //random(-2147483648, 2147483647);
-}
+    // проверяем наличие файла "iarduino.txt" на SD-карте
+    while (1)
+    {
+        _filename = String((unsigned long) random(-2147483648, 2147483647) + ".txt", HEX);
+        if (SD.exists(_filename))
+        {
+            // если файл с именем "iarduino.txt" существует, то ...
+            Serial.println("File " + _filename + " exists! New turn!");
+        }
+        else
+        {
+            // иначе ...
+            lcd.setCursor(0, 0);
+            lcd.print(_filename);
+            Serial.println("File " + _filename + " doesn't exist! Create new!");
+            logFile = SD.open(_filename, FILE_WRITE);
+            delay(1000);
+            break;
+        }
+        // lcd.setCursor(0,0);
+        // lcd.print((unsigned long)-2147483648, HEX);
+        // lcd.setCursor(0,1);
+        // lcd.print((unsigned long)2147483647, HEX);
+        // delay(1000);
+        // lcd.setCursor(0,0);
+        // lcd.print((unsigned long)0, HEX);
+        // lcd.setCursor(0,1);
+        // lcd.print((unsigned long)-100, HEX);
+        // delay(1000);
+        // random(-2147483648, 2147483647);
+    }
     // tmrpcm.play("music"); //the sound file "music" will play each time the arduino powers up, or is reset
 }
 
@@ -440,7 +445,7 @@ void goal()
     previousMillis = currentMillis;
     tmrpcm.stopPlayback();
     tmrpcm.play("whistle.wav");
-    //tone(SPEAKER_PIN, 3000, 250);
+    // tone(SPEAKER_PIN, 3000, 250);
     reset_buttons_flagClick;
     ballkick = false;
     game = GAME_PERFORMED;
