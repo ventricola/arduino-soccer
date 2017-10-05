@@ -5,6 +5,7 @@
 // #define SD_ChipSelectPin 53  //example uses hardware SS pin 53 on Mega2560
 // #define SD_ChipSelectPin 4  //using digital pin 4 on arduino nano 328, can use other pins
 #include <TMRpcm.h> //  also need to include this library...
+//uncomment //#define DISABLE_SPEAKER2 in pcmConfig.h to disable companion speaker on pin 45, used for l104!
 #include <SPI.h>
 #define GAME_START 0
 #define GAME_PERFORMED 1
@@ -215,8 +216,11 @@ int game = GAME_START, rScore = 0, gScore = 0,
 x = -1, y = -1, vector = 0, xPrev = -1, yPrev = -1, vectorPrev = 0;
 unsigned long currentMillis = 0, previousMillis = 0;
 boolean ballkick = false;
+File logFile;
+
 void setup()
 {
+    String _filename;
     // put your setup code here, to run once:
     MsTimer2::set(2, timerInterupt); // задаем период прерывания по таймеру 2 мс
     MsTimer2::start(); // разрешаем прерывание по таймеру
@@ -246,6 +250,31 @@ void setup()
         Serial.println("SD fail");
         return; // don't do anything more if not
     }
+     //проверяем наличие файла "iarduino.txt" на SD-карте
+    while (1) {
+        _filename=String((unsigned long)random(-2147483648, 2147483647)+".txt",HEX);
+  if(SD.exists(_filename)){                   // если файл с именем "iarduino.txt" существует, то ...
+    Serial.println("File "+_filename+" exists! New turn!");
+  }else{                                           // иначе ...
+    lcd.setCursor(0,0);
+    lcd.print(_filename);
+    Serial.println("File "+_filename+" doesn't exist! Create new!");
+    logFile = SD.open(_filename, FILE_WRITE);
+    break;
+  }
+
+    //lcd.setCursor(0,0);
+    //lcd.print((unsigned long)-2147483648, HEX);
+    //lcd.setCursor(0,1);
+    //lcd.print((unsigned long)2147483647, HEX);
+    //delay(1000);
+    //lcd.setCursor(0,0);
+    //lcd.print((unsigned long)0, HEX);
+    //lcd.setCursor(0,1);
+    //lcd.print((unsigned long)-100, HEX);
+    //delay(1000);
+    //random(-2147483648, 2147483647);
+}
     // tmrpcm.play("music"); //the sound file "music" will play each time the arduino powers up, or is reset
 }
 
