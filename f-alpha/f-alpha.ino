@@ -188,8 +188,8 @@ void timerInterupt()
     button25.scanState();
 }
 
-// LiquidCrystal_I2C lcd(0x3f, 16, 2); // set the LCD address to 0x3f for a 16 chars and 2 line display in prototype board
-LiquidCrystal_I2C lcd(0x27, 16, 2); // set the LCD address to 0x27 for a 16 chars and 2 line display in Proteus
+LiquidCrystal_I2C lcd(0x3f, 16, 2); // set the LCD address to 0x3f for a 16 chars and 2 line display in prototype board
+// LiquidCrystal_I2C lcd(0x27, 16, 2); // set the LCD address to 0x27 for a 16 chars and 2 line display in Proteus
 const char b11 = B11_PIN, b12 = B12_PIN, b13 = B13_PIN, b14 = B14_PIN, b15 = B15_PIN, b21 = B21_PIN, b22 = B22_PIN, b23 = B23_PIN, // buttons
 b24 = B24_PIN, b25 = B25_PIN,
 l101 = L101_PIN, l102 = L102_PIN, l103 = L103_PIN, l104 = L104_PIN, l105 = L105_PIN, l106 = L106_PIN, l107 = L107_PIN, // leds
@@ -199,44 +199,35 @@ l210 = L210_PIN, l211 = L211_PIN, l212 = L212_PIN,
 l1r = L1R_PIN, l1g = L1G_PIN, l1b = L1B_PIN, l2r = L2R_PIN, l2g = L2G_PIN, l2b = L2B_PIN, l3r = L3R_PIN, l3g = L3G_PIN, // rgb leds
 l3b = L3B_PIN, l4r = L4R_PIN, l4g = L4G_PIN, l4b = L4B_PIN;
 const char field[12][5] =
+/* {
+    {        -1,    -1,   l109, -1,   -1    },
+    {        -1,    1,    l108, 3,    -1    },
+    {        -1,    l210, l204, l201, -1    },
+    {        -1,    l103, l107, l112, -1    },
+    {        -1,    l211, l205, l202, -1    },
+    {        -1,    -1,   l106, -1,   -1    },
+    {        -1,    -1,   l206, -1,   -1    },
+    {        -1,    l102, l105, l111, -1    },
+    {        -1,    l212, l207, l203, -1    },
+    {        -1,    l101, l104, l110, -1    },
+    {        -1,    2,    l208, 4,    -1    },
+    {        -1,    -1,   l209, -1,   -1    }
+}; */
 {
-    {
-        - 1, -1, l109, -1, -1
-    },
-    {
-        - 1, 1, l108, 3, -1
-    },
-    {
-        - 1, l210, l204, l201, -1
-    },
-    {
-        - 1, l103, l107, l112, -1
-    },
-    {
-        - 1, l211, l205, l202, -1
-    },
-    {
-        - 1, -1, l106, -1, -1
-    },
-    {
-        - 1, -1, l206, -1, -1
-    },
-    {
-        - 1, l102, l105, l111, -1
-    },
-    {
-        - 1, l212, l207, l203, -1
-    },
-    {
-        - 1, l101, l104, l110, -1
-    },
-    {
-        - 1, 2, l208, 4, -1
-    },
-    {
-        - 1, -1, l209, -1, -1
-    }
+    {        -1,    -1,   l109, -1,   -1    },
+    {        -1,    1,    l108, 3,    -1    },
+    {        -1,    l210, l204, l201, -1    },
+    {        -1,    l103, l107, l112, -1    },
+    {        -1,    l211, l205, l202, -1    },
+    {        -1,    -1,   l106, -1,   -1    },
+    {        -1,    -1,   l206, -1,   -1    },
+    {        -1,    l102, l105, l111, -1    },
+    {        -1,    l212, l207, l203, -1    },
+    {        -1,    l101, l104, l110, -1    },
+    {        -1,    2,    l208, 4,    -1    },
+    {        -1,    -1,   l209, -1,   -1    }
 };
+
 
 int game = GAME_START, rScore = 0, gScore = 0,
 x = -1, y = -1, vector = 0, xPrev = -1, yPrev = -1, vectorPrev = 0;
@@ -727,7 +718,7 @@ void goalline()
 void offside()
 {
     currentMillis = millis();
-    log("Side out at " + String(currentMillis) + " after " + String(previousMillis));
+    log("Offside at " + String(currentMillis) + " after " + String(previousMillis));
     previousMillis = currentMillis;
     reset_buttons_flagClick();
     ballkick = false;
