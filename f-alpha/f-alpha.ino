@@ -403,7 +403,7 @@ void newxy(int _x, int _y, int _vector)
                         {
                             digitalWrite(l3r, HIGH);
                         }
-                        break;
+                    break;
                 case 4:
                     if (vector == GREENS)
                     {
@@ -414,11 +414,12 @@ void newxy(int _x, int _y, int _vector)
                         {
                             digitalWrite(l4r, HIGH);
                         }
-                        break;
+                    break;
                 default:
             }
         }
-        digitalWrite(field[x][y], HIGH); // проверка наличия светодиода в новой координате
+        else
+            digitalWrite(field[x][y], HIGH); // проверка наличия светодиода в новой координате
     }
     digitalWrite(field[xPrev][yPrev], LOW);
     if (y == 0 || y == 4)
@@ -723,6 +724,25 @@ void goalline()
         }
 }
 
+void offside()
+{
+    currentMillis = millis();
+    log("Side out at " + String(currentMillis) + " after " + String(previousMillis));
+    previousMillis = currentMillis;
+    reset_buttons_flagClick();
+    ballkick = false;
+    game = GAME_PERFORMED;
+    if (vector == GREENS)
+    {
+        newxy(6, 2, REDS);
+    }
+    else
+        if (vector == REDS)
+        {
+            newxy(5, 2, GREENS);
+        }
+}
+
 void loop()
 {
     // put your main code here, to run repeatedly:
@@ -751,7 +771,9 @@ void loop()
         case GAME_END_OUT:
             goalline();
             break;
-
+        case GAME_OFFSIDE:
+            offside();
+            break;
         default:
         // выполняется, если не выбрана ни одна альтернатива
         // default необязателен
