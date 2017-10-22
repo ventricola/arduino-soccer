@@ -188,7 +188,7 @@ void timerInterupt()
     button25.scanState();
 }
 
-//LiquidCrystal_I2C lcd(0x3f, 16, 2); // set the LCD address to 0x3f for a 16 chars and 2 line display in prototype board
+// LiquidCrystal_I2C lcd(0x3f, 16, 2); // set the LCD address to 0x3f for a 16 chars and 2 line display in prototype board
 LiquidCrystal_I2C lcd(0x27, 16, 2); // set the LCD address to 0x27 for a 16 chars and 2 line display in Proteus
 const char b11 = B11_PIN, b12 = B12_PIN, b13 = B13_PIN, b14 = B14_PIN, b15 = B15_PIN, b21 = B21_PIN, b22 = B22_PIN, b23 = B23_PIN, // buttons
 b24 = B24_PIN, b25 = B25_PIN,
@@ -200,18 +200,42 @@ l1r = L1R_PIN, l1g = L1G_PIN, l1b = L1B_PIN, l2r = L2R_PIN, l2g = L2G_PIN, l2b =
 l3b = L3B_PIN, l4r = L4R_PIN, l4g = L4G_PIN, l4b = L4B_PIN;
 const char field[12][5] =
 {
-    {        -1,    -1,   l109, -1,   -1    },
-    {        -1,    1,    l108, 3,    -1    },
-    {        -1,    l210, l204, l201, -1    },
-    {        -1,    l103, l107, l112, -1    },
-    {        -1,    l211, l205, l202, -1    },
-    {        -1,    -1,   l106, -1,   -1    },
-    {        -1,    -1,   l206, -1,   -1    },
-    {        -1,    l102, l105, l111, -1    },
-    {        -1,    l212, l207, l203, -1    },
-    {        -1,    l101, l104, l110, -1    },
-    {        -1,    2,    l208, 4,    -1    },
-    {        -1,    -1,   l209, -1,   -1    }
+    {
+        - 1, -1, l109, -1, -1
+    },
+    {
+        - 1, 1, l108, 3, -1
+    },
+    {
+        - 1, l210, l204, l201, -1
+    },
+    {
+        - 1, l103, l107, l112, -1
+    },
+    {
+        - 1, l211, l205, l202, -1
+    },
+    {
+        - 1, -1, l106, -1, -1
+    },
+    {
+        - 1, -1, l206, -1, -1
+    },
+    {
+        - 1, l102, l105, l111, -1
+    },
+    {
+        - 1, l212, l207, l203, -1
+    },
+    {
+        - 1, l101, l104, l110, -1
+    },
+    {
+        - 1, 2, l208, 4, -1
+    },
+    {
+        - 1, -1, l209, -1, -1
+    }
 };
 
 int game = GAME_START, rScore = 0, gScore = 0,
@@ -219,33 +243,40 @@ x = -1, y = -1, vector = 0, xPrev = -1, yPrev = -1, vectorPrev = 0;
 unsigned long currentMillis = 0, previousMillis = 0;
 boolean ballkick = false, debug = true, sdEnable = false;
 File logFile;
-
-void log(String _str, String _lcdStr){
-    if ( debug ) {
+void log(String _str, String _lcdStr)
+{
+    if (debug)
+    {
         Serial.println(_str);
         lcd.setCursor(0, 0);
         lcd.print("                ");
         lcd.setCursor(0, 0);
         lcd.print(_lcdStr);
-        if ( sdEnable ) {
-            logFile.print(millis()+"    ");
+        if (sdEnable)
+        {
+            logFile.print(millis() + "    ");
             logFile.println(_str);
         }
     }
 }
 
-void log(String _str){
-    if ( debug ) {
+void log(String _str)
+{
+    if (debug)
+    {
         Serial.println(_str);
-        if ( sdEnable ) {
-            logFile.print(millis()+"    ");
+        if (sdEnable)
+        {
+            logFile.print(millis() + "    ");
             logFile.println(_str);
         }
     }
 }
 
-void pcm(char* _filename) {
-    if (digitalRead(DEBUG2_PIN)) {
+void pcm(char * _filename)
+{
+    if (digitalRead(DEBUG2_PIN))
+    {
         audio.play(_filename);
     }
 }
@@ -289,8 +320,8 @@ void setup()
     // проверяем наличие файла на SD-карте
     while (1)
     {
-        _rand=(unsigned long)random(999999);
-        _filename = String(_rand, HEX)+".txt";
+        _rand = (unsigned long) random(999999);
+        _filename = String(_rand, HEX) + ".txt";
         if (SD.exists(_filename))
         {
             // если файл с именем существует, то ...
@@ -331,11 +362,62 @@ void newxy(int _x, int _y, int _vector)
     y = _y;
     vector = _vector;
     currentMillis = millis();
-    log ("Newxy on "+String(x)+","+String(y)+","+String(vector)+" at "+String(currentMillis)+" after "+String(previousMillis));
+    log("Newxy on " + String(x) + "," + String(y) + "," + String(vector) + " at " + String(currentMillis) + " after " + String(previousMillis));
     previousMillis = currentMillis;
     reset_buttons_flagClick();
     if (field[x][y] != -1)
     {
+        if (field[x][y] >= 1 && field[x][y] <= 4)
+        {
+            switch (field[x][y])
+            {
+                case 1:
+                    if (vector == GREENS)
+                    {
+                        digitalWrite(l1g, HIGH);
+                    }
+                    else
+                        if (vector == REDS)
+                        {
+                            digitalWrite(l1r, HIGH);
+                        }
+                    break;
+                case 2:
+                    if (vector == GREENS)
+                    {
+                        digitalWrite(l2g, HIGH);
+                    }
+                    else
+                        if (vector == REDS)
+                        {
+                            digitalWrite(l2r, HIGH);
+                        }
+                    break;
+                case 3:
+                    if (vector == GREENS)
+                    {
+                        digitalWrite(l3g, HIGH);
+                    }
+                    else
+                        if (vector == REDS)
+                        {
+                            digitalWrite(l3r, HIGH);
+                        }
+                        break;
+                case 4:
+                    if (vector == GREENS)
+                    {
+                        digitalWrite(l4g, HIGH);
+                    }
+                    else
+                        if (vector == REDS)
+                        {
+                            digitalWrite(l4r, HIGH);
+                        }
+                        break;
+                default:
+            }
+        }
         digitalWrite(field[x][y], HIGH); // проверка наличия светодиода в новой координате
     }
     digitalWrite(field[xPrev][yPrev], LOW);
@@ -382,7 +464,7 @@ void start_game()
         {
             lcd.setCursor(0, 0);
             lcd.print("Cross fail!     ");
-            log ("Cross falsestart at "+String(currentMillis)+" after "+String(previousMillis));    
+            log("Cross falsestart at " + String(currentMillis) + " after " + String(previousMillis));
             return;
         }
         else
@@ -392,7 +474,7 @@ void start_game()
                 lcd.print("Reds fail!      ");
                 lcd.setCursor(0, 1);
                 lcd.print("Greens win!     ");
-                log ("Reds falsestart and greens win at "+String(currentMillis)+" after "+String(previousMillis));    
+                log("Reds falsestart and greens win at " + String(currentMillis) + " after " + String(previousMillis));
                 game = GAME_PERFORMED;
                 newxy(5, 2, GREENS);
                 return;
@@ -404,7 +486,7 @@ void start_game()
                 lcd.print("Greens fail!    ");
                 lcd.setCursor(0, 1);
                 lcd.print("Reds win!       ");
-                log ("Greens falsestart and reds win at "+String(currentMillis)+" after "+String(previousMillis));    
+                log("Greens falsestart and reds win at " + String(currentMillis) + " after " + String(previousMillis));
                 game = GAME_PERFORMED;
                 newxy(6, 2, REDS);
                 return;
@@ -420,7 +502,7 @@ void start_game()
         {
             lcd.setCursor(0, 0);
             lcd.print("Greens win!     ");
-            log ("Greens win at "+String(currentMillis)+" after "+String(previousMillis));    
+            log("Greens win at " + String(currentMillis) + " after " + String(previousMillis));
             game = GAME_PERFORMED;
             newxy(5, 2, GREENS);
             return;
@@ -430,7 +512,7 @@ void start_game()
             {
                 lcd.setCursor(0, 0);
                 lcd.print("Reds win!   ");
-                log ("Reds win at "+String(currentMillis)+" after "+String(previousMillis));
+                log("Reds win at " + String(currentMillis) + " after " + String(previousMillis));
                 game = GAME_PERFORMED;
                 newxy(6, 2, REDS);
                 return;
@@ -441,21 +523,24 @@ void start_game()
 void in_game()
 {
     lcd.setCursor(0, 1);
-    lcd.print("Gs: "+String(gScore)+"   Rs: "+String(rScore)+" ");
+    lcd.print("Gs: " + String(gScore) + "   Rs: " + String(rScore) + " ");
     currentMillis = millis();
-    if (!ballkick && ((currentMillis - previousMillis) >= 3000)) //offside, мяч не в игре 3 с
+    if (!ballkick && ((currentMillis - previousMillis) >= 3000))
+    // offside, мяч не в игре 3 с
     {
         game = GAME_OFFSIDE;
         return;
     }
     else
-        if (ballkick && ((currentMillis - previousMillis) >= 500) && y == 2 && ( x + x - xPrev == 0 || x + x - xPrev == 11) ) //мяч не перехвачен за 0.5 с
+        if (ballkick && ((currentMillis - previousMillis) >= 500) && y == 2 && (x + x - xPrev == 0 || x + x - xPrev == 11))
+        // мяч не перехвачен за 0.5 с
         {
             newxy(x + x - xPrev, y + y - yPrev, vector);
             return;
         }
     else
-        if (ballkick && ((currentMillis - previousMillis) >= 300)) //мяч не перехвачен за 0.3 с
+        if (ballkick && ((currentMillis - previousMillis) >= 300))
+        // мяч не перехвачен за 0.3 с
         {
             newxy(x + x - xPrev, y + y - yPrev, vector);
             return;
@@ -495,15 +580,15 @@ void goal()
     if (x == 0)
     {
         rScore++;
-        log ("Reds score at "+String(currentMillis)+" after "+String(previousMillis));
-        lcd.print("Rds score!"+String(gScore)+" "+String(rScore)+"  ");
+        log("Reds score at " + String(currentMillis) + " after " + String(previousMillis));
+        lcd.print("Rds score!" + String(gScore) + " " + String(rScore) + "  ");
         newxy(5, 2, GREENS);
     }
     else
     {
         gScore++;
-        log ("Greens score at "+String(currentMillis)+" after "+String(previousMillis));
-        lcd.print("Grs score!"+String(gScore)+" "+String(rScore)+"  ");
+        log("Greens score at " + String(currentMillis) + " after " + String(previousMillis));
+        lcd.print("Grs score!" + String(gScore) + " " + String(rScore) + "  ");
         newxy(6, 2, REDS);
     }
     previousMillis = currentMillis;
@@ -512,12 +597,12 @@ void goal()
 void side()
 {
     currentMillis = millis();
-    log ("Side out at "+String(currentMillis)+" after "+String(previousMillis));
+    log("Side out at " + String(currentMillis) + " after " + String(previousMillis));
     previousMillis = currentMillis;
     reset_buttons_flagClick();
     ballkick = false;
     game = GAME_PERFORMED;
-    if (vector == GREENS)
+    if (vector == GREENS); // если зеленые выбили мяч, то
     {
         if (y == 0)
         {
@@ -589,6 +674,55 @@ void side()
     }
 }
 
+void goalline()
+{
+    currentMillis = millis();
+    log("Side out at " + String(currentMillis) + " after " + String(previousMillis));
+    previousMillis = currentMillis;
+    reset_buttons_flagClick();
+    ballkick = false;
+    game = GAME_PERFORMED;
+    if (vector == GREENS)
+    // если зеленые выбили мяч, но только назад или вперед поля
+    {
+        if (x == 11)
+        {
+            newxy(10, 2, REDS);
+        }
+        else
+            if (x == 0)
+            {
+                if (y == 3 || y == 4)
+                {
+                    newxy(1, 3, REDS);
+                }
+                else
+                    if (y == 0 || y == 1)
+                    {
+                        newxy(1, 1, REDS);
+                    }
+            }
+    }
+    else
+        if (x == 0)
+        {
+            newxy(1, 2, GREENS);
+        }
+    else
+        if (x == 11)
+        {
+            if (y == 3 || y == 4)
+            {
+                newxy(10, 3, GREENS);
+            }
+            else
+                if (y == 0 || y == 1)
+                {
+                    newxy(10, 1, GREENS);
+                }
+        }
+}
+
 void loop()
 {
     // put your main code here, to run repeatedly:
@@ -614,6 +748,10 @@ void loop()
             goal();
             // выполняется, когда противнику забит гол
             break;
+        case GAME_END_OUT:
+            goalline();
+            break;
+
         default:
         // выполняется, если не выбрана ни одна альтернатива
         // default необязателен
