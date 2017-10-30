@@ -189,7 +189,7 @@ void timerInterupt()
 }
 
 LiquidCrystal_I2C lcd(0x3f, 16, 2); // set the LCD address to 0x3f for a 16 chars and 2 line display in prototype board
-//LiquidCrystal_I2C lcd(0x27, 16, 2); // set the LCD address to 0x27 for a 16 chars and 2 line display in Proteus
+// LiquidCrystal_I2C lcd(0x27, 16, 2); // set the LCD address to 0x27 for a 16 chars and 2 line display in Proteus
 const char b11 = B11_PIN, b12 = B12_PIN, b13 = B13_PIN, b14 = B14_PIN, b15 = B15_PIN, b21 = B21_PIN, b22 = B22_PIN, b23 = B23_PIN, // buttons
 b24 = B24_PIN, b25 = B25_PIN,
 l101 = L101_PIN, l102 = L102_PIN, l103 = L103_PIN, l104 = L104_PIN, l105 = L105_PIN, l106 = L106_PIN, l107 = L107_PIN, // leds
@@ -198,23 +198,23 @@ l203 = L203_PIN, l204 = L204_PIN, l205 = L205_PIN, l206 = L206_PIN, l207 = L207_
 l210 = L210_PIN, l211 = L211_PIN, l212 = L212_PIN,
 l1r = L1R_PIN, l1g = L1G_PIN, l1b = L1B_PIN, l2r = L2R_PIN, l2g = L2G_PIN, l2b = L2B_PIN, l3r = L3R_PIN, l3g = L3G_PIN, // rgb leds
 l3b = L3B_PIN, l4r = L4R_PIN, l4g = L4G_PIN, l4b = L4B_PIN;
-//{
-//xy         4     3     2     1     0
-//                    GREENS
-//0    {    -1,    -1,   l109, -1,   -1    },
-//1    {    -1,    1,    l108, 3,    -1    },
-//2    {    -1,    l210, l204, l201, -1    },
-//3    {    -1,    l103, l107, l112, -1    },
-//4    {    -1,    l211, l205, l202, -1    },
-//5    {    -1,    -1,   l106, -1,   -1    },
-//6    {    -1,    -1,   l206, -1,   -1    },
-//7    {    -1,    l102, l105, l111, -1    },
-//8    {    -1,    l212, l207, l203, -1    },
-//9    {    -1,    l101, l104, l110, -1    },
-//10   {    -1,    2,    l208, 4,    -1    },
-//11   {    -1,    -1,   l209, -1,   -1    }
-//                     REDS
-//};
+// {
+// xy         4     3     2     1     0
+// GREENS
+// 0    {    -1,    -1,   l109, -1,   -1    },
+// 1    {    -1,    1,    l108, 3,    -1    },
+// 2    {    -1,    l210, l204, l201, -1    },
+// 3    {    -1,    l103, l107, l112, -1    },
+// 4    {    -1,    l211, l205, l202, -1    },
+// 5    {    -1,    -1,   l106, -1,   -1    },
+// 6    {    -1,    -1,   l206, -1,   -1    },
+// 7    {    -1,    l102, l105, l111, -1    },
+// 8    {    -1,    l212, l207, l203, -1    },
+// 9    {    -1,    l101, l104, l110, -1    },
+// 10   {    -1,    2,    l208, 4,    -1    },
+// 11   {    -1,    -1,   l209, -1,   -1    }
+// REDS
+// };
 const char field[12][5] =
 {
     {
@@ -273,7 +273,7 @@ void log(String _str, String _lcdStr)
         {
             logFile.print(millis() + "    ");
             logFile.println(_str);
-            //logFile.flush();
+            // logFile.flush();
         }
     }
 }
@@ -287,7 +287,7 @@ void log(String _str)
         {
             logFile.print(millis() + "    ");
             logFile.println(_str);
-            //logFile.flush();
+            // logFile.flush();
         }
     }
 }
@@ -436,17 +436,20 @@ void newxy(int _x, int _y, int _vector)
     log("Newxy on " + String(x) + "," + String(y) + "," + String(vector) + " at " + String(currentMillis) + " after " + String(previousMillis));
     previousMillis = currentMillis;
     reset_buttons_flagClick();
-    if (field[x][y] != -1) // проверка наличия светодиода в новой координате
+    if (field[x][y] != -1)
+    // проверка наличия светодиода в новой координате
     {
-        if (field[x][y] >= 1 && field[x][y] <= 4 && (xPrev==0 || xPrev == 11)) //угловые только после выхода мяча за поле
+        if (field[x][y] >= 1 && field[x][y] <= 4 && (xPrev == 0 || xPrev == 11))
+        // угловые только после выхода мяча за поле
         {
             digitalWrite(getRGBPin(field[x][y], vector), HIGH);
         }
         else
-            if (field[x][y] >= LMIN_PIN) digitalWrite(field[x][y], HIGH); //кроме угловых
+            if (field[x][y] >= LMIN_PIN)
+                digitalWrite(field[x][y], HIGH); // кроме угловых
     }
     if (field[xPrev][yPrev] != -1)
-        // проверка наличия светодиода в старой координате
+    // проверка наличия светодиода в старой координате
     {
         if ((field[xPrev][yPrev] >= 1) && (field[xPrev][yPrev] <= 4))
         {
@@ -480,7 +483,7 @@ void start_game()
     pcm("ole.wav");
     for (int j = random(100, 1000); j > 0; j = j - 100)
     {
-        currentMillis=millis();
+        currentMillis = millis();
         for (int i = L1R_PIN; i <= L4B_PIN; i++)
         {
             // init rgb leds
@@ -533,7 +536,7 @@ void start_game()
     reset_buttons_flagClick;
     while (1)
     {
-        currentMillis=millis();
+        currentMillis = millis();
         if (button11.flagClick == 1)
         {
             lcd.setCursor(0, 0);
@@ -581,27 +584,59 @@ void in_game()
             newxy(x + x - xPrev, y + y - yPrev, vector);
             return;
         }
-    if ((button14.flagClick == 1) || (button24.flagClick == 1))
+    if (vector = GREENS)
     {
-        newxy(x + vector, y, vector);
-        ballkick = true;
+        if (button14.flagClick == 1)
+        {
+            newxy(x + vector, y, vector);
+            ballkick = true;
+        }
+        else
+            if (button13.flagClick == 1)
+            {
+                newxy(x - vector, y, vector);
+                ballkick = true;
+            }
+        else
+            if (button12.flagClick == 1)
+            {
+                newxy(x, y + vector, vector);
+                ballkick = true;
+            }
+        else
+            if (button15.flagClick == 1)
+            {
+                newxy(x, y - vector, vector);
+                ballkick = true;
+            }
+        else
+        {
+            if (button24.flagClick == 1)
+            {
+                newxy(x + vector, y, vector);
+                ballkick = true;
+            }
+            if (button23.flagClick == 1)
+            {
+                newxy(x - vector, y, vector);
+                ballkick = true;
+            }
+            if (button22.flagClick == 1)
+            {
+                newxy(x, y + vector, vector);
+                ballkick = true;
+            }
+            if (button25.flagClick == 1)
+            {
+                newxy(x, y - vector, vector);
+                ballkick = true;
+            }
+        }
     }
-    if ((button13.flagClick == 1) || (button23.flagClick == 1))
-    {
-        newxy(x - vector, y, vector);
-        ballkick = true;
-    }
-    if ((button12.flagClick == 1) || (button22.flagClick == 1))
-    {
-        newxy(x, y + vector, vector);
-        ballkick = true;
-    }
-    if ((button15.flagClick == 1) || (button25.flagClick == 1))
-    {
-        newxy(x, y - vector, vector);
-        ballkick = true;
-    }
+    
+
 }
+
 
 void goal()
 {
@@ -639,7 +674,7 @@ void side()
     ballkick = false;
     game = GAME_PERFORMED;
     if (vector == GREENS)
-        // если зеленые выбили мяч, то
+    // если зеленые выбили мяч, то
     {
         if (y == 0)
         {
@@ -711,6 +746,10 @@ void side()
     }
 }
 
+}
+
+}
+
 void goalline()
 {
     currentMillis = millis();
@@ -777,6 +816,8 @@ void offside()
         {
             newxy(5, 2, GREENS);
         }
+}
+
 }
 
 void loop()
