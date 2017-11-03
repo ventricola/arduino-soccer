@@ -215,43 +215,43 @@ l3b = L3B_PIN, l4r = L4R_PIN, l4g = L4G_PIN, l4b = L4B_PIN;
 // 11   {    -1,    -1,   l209, -1,   -1    }
 // REDS
 // };
-const char field[12][5] =
+const char field[12][5][2] =
 {
     {
-        - 1, -1, l109, -1, -1
+        {- 1, 0}, {-1,0}, {l109, 1}, {-1, 0},  {-1, 0}
     },
     {
-        - 1, 1, l108, 3, -1
+        {- 1,0}, {1,0}, {l108,1},  {3,0}, {-1, 0}
     },
     {
-        - 1, l210, l204, l201, -1
+        {- 1,0}, {l210, -1}, {l204,-1}, {l201,-1}, {-1,0}
     },
     {
-        - 1, l103, l107, l112, -1
+        {- 1,0}, {l103,1}, {l107,1}, {l112,1}, {-1,0}
     },
     {
-        - 1, l211, l205, l202, -1
+        {- 1,0}, {l211,-1}, {l205,-1}, {l202,-1}, {-1,0}
     },
     {
-        - 1, -1, l106, -1, -1
+        {- 1,0}, {-1,0}, {l106,1}, {-1,0}, {-1,0}
     },
     {
-        - 1, -1, l206, -1, -1
+        {- 1,0}, {-1,0}, {l206,-1}, {-1,0}, {-1,0}
     },
     {
-        - 1, l102, l105, l111, -1
+        {- 1,0}, {l102,1}, {l105,1}, {l111,1}, {-1,0}
     },
     {
-        - 1, l212, l207, l203, -1
+        {- 1,0}, {l212,-1}, {l207,-1}, {l203,-1}, {-1,0}
     },
     {
-        - 1, l101, l104, l110, -1
+        {- 1,0}, {l101,1}, {l104,1}, {l110,1}, {-1,0}
     },
     {
-        - 1, 2, l208, 4, -1
+        {- 1,0}, {2,0}, {l208,-1}, {4,0}, {-1,0}
     },
     {
-        - 1, -1, l209, -1, -1
+        {- 1,0}, {-1,0}, {l209,-1}, {-1,0}, {-1,0}
     }
 };
 
@@ -436,27 +436,27 @@ void newxy(int _x, int _y, int _vector)
     log("Newxy on " + String(x) + "," + String(y) + "," + String(vector) + " at " + String(currentMillis) + " after " + String(previousMillis));
     previousMillis = currentMillis;
     reset_buttons_flagClick();
-    if (field[x][y] != -1)
+    if (field[x][y][0] != -1)
     // проверка наличия светодиода в новой координате
     {
-        if (field[x][y] >= 1 && field[x][y] <= 4 && (xPrev == 0 || xPrev == 11))
+        if (field[x][y][0] >= 1 && field[x][y][0] <= 4 && (xPrev == 0 || xPrev == 11))
         // угловые только после выхода мяча за поле
         {
-            digitalWrite(getRGBPin(field[x][y], vector), HIGH);
+            digitalWrite(getRGBPin(field[x][y][0], vector), HIGH);
         }
         else
-            if (field[x][y] >= LMIN_PIN)
-                digitalWrite(field[x][y], HIGH); // кроме угловых
+            if (field[x][y][0] >= LMIN_PIN)
+                digitalWrite(field[x][y][0], HIGH); // кроме угловых
     }
-    if (field[xPrev][yPrev] != -1)
+    if (field[xPrev][yPrev][0] != -1)
     // проверка наличия светодиода в старой координате
     {
-        if ((field[xPrev][yPrev] >= 1) && (field[xPrev][yPrev] <= 4))
+        if ((field[xPrev][yPrev][0] >= 1) && (field[xPrev][yPrev][0] <= 4))
         {
-            digitalWrite(getRGBPin(field[xPrev][yPrev], vectorPrev), LOW);
+            digitalWrite(getRGBPin(field[xPrev][yPrev][0], vectorPrev), LOW);
         }
         else
-            digitalWrite(field[xPrev][yPrev], LOW);
+            digitalWrite(field[xPrev][yPrev][0], LOW);
     }
     if (y == 0 || y == 4)
     {
