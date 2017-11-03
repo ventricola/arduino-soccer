@@ -746,9 +746,6 @@ void side()
     }
 }
 
-}
-
-}
 
 void goalline()
 {
@@ -818,7 +815,7 @@ void offside()
         }
 }
 
-}
+
 
 void loop()
 {
