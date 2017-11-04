@@ -198,62 +198,42 @@ l203 = L203_PIN, l204 = L204_PIN, l205 = L205_PIN, l206 = L206_PIN, l207 = L207_
 l210 = L210_PIN, l211 = L211_PIN, l212 = L212_PIN,
 l1r = L1R_PIN, l1g = L1G_PIN, l1b = L1B_PIN, l2r = L2R_PIN, l2g = L2G_PIN, l2b = L2B_PIN, l3r = L3R_PIN, l3g = L3G_PIN, // rgb leds
 l3b = L3B_PIN, l4r = L4R_PIN, l4g = L4G_PIN, l4b = L4B_PIN;
+
+// const char field[12][5][2] =
 // {
-// xy         4     3     2     1     0
+// xy         0           1           2           3           4
 // GREENS
-// 0    {    -1,    -1,   l109, -1,   -1    },
-// 1    {    -1,    1,    l108, 3,    -1    },
-// 2    {    -1,    l210, l204, l201, -1    },
-// 3    {    -1,    l103, l107, l112, -1    },
-// 4    {    -1,    l211, l205, l202, -1    },
-// 5    {    -1,    -1,   l106, -1,   -1    },
-// 6    {    -1,    -1,   l206, -1,   -1    },
-// 7    {    -1,    l102, l105, l111, -1    },
-// 8    {    -1,    l212, l207, l203, -1    },
-// 9    {    -1,    l101, l104, l110, -1    },
-// 10   {    -1,    2,    l208, 4,    -1    },
-// 11   {    -1,    -1,   l209, -1,   -1    }
+// 0    {     {-1, 0},    {-1, 0},    {l109, 1},  {-1, 0},    {-1, 0}     },
+// 1    {     {-1, 0},    {3, 0},     {l108, 1},  {1, 0},     {-1, 0}     },
+// 2    {     {-1, 0},    {l201, -1}, {l204, -1}, {l210, -1}, {-1, 0}     },
+// 3    {     {-1, 0},    {l112, 1},  {l107, 1},  {l103, 1},  {-1, 0}     },
+// 4    {     {-1, 0},    {l202, -1}, {l205, -1}, {l211, -1}, {-1, 0}     },
+// 5    {     {-1, 0},    {-1, 0},    {l106, 1},  {-1, 0},    {-1, 0}     },
+// 6    {     {-1, 0},    {-1, 0},    {l206, -1}, {-1, 0},    {-1, 0}     },
+// 7    {     {-1, 0},    {l111, 1},  {l105, 1},  {l102, 1},  {-1, 0}     },
+// 8    {     {-1, 0},    {l203, -1}, {l207, -1}, {l212, -1}, {-1, 0}     },
+// 9    {     {-1, 0},    {l110, 1},  {l104, 1},  {l101, 1},  {-1, 0}     },
+// 10    {     {-1, 0},    {4, 0},     {l208, -1}, {2, 0},     {-1, 0}     },
+// 11    {     {-1, 0},    {-1, 0},    {l209, -1}, {-1, 0},    {-1, 0}     }
 // REDS
 // };
+
 const char field[12][5][2] =
 {
-    {
-        {- 1, 0 },{- 1, 0},{l109, 1},{- 1, 0},{- 1, 0}
-    },
-    {
-        {- 1, 0},{3, 0},{l108, 1},{1, 0},{- 1, 0} 
-    },
-    {
-        {- 1, 0},{l201, -1},{l204, -1},{l210, -1},{- 1, 0}
-    },
-    {
-        {- 1, 0},{l112, 1},{l107, 1},{l103, 1},{- 1, 0}
-    },
-    {
-        {- 1, 0},{l202, -1},{l205, -1},{l211, -1},{- 1, 0}
-    },
-    {
-        {- 1, 0},{- 1, 0},{l106, 1},{- 1, 0},{- 1, 0}
-    },
-    {
-        {- 1, 0},{- 1, 0},{l206, -1},{- 1, 0},{- 1, 0}
-    },
-    {
-        {- 1, 0},{l111, 1},{l105, 1},{l102, 1},{- 1, 0}
-    },
-    {
-        {- 1, 0},{l203, -1},{l207, -1},{l212, -1},{- 1, 0}
-    },
-    {
-        {- 1, 0},{l110, 1},{l104, 1},{l101, 1},{- 1, 0}
-    },
-    {
-        {- 1, 0},{4, 0},{l208, -1},{2, 0},{- 1, 0}
-    },
-    {
-        {- 1, 0},{- 1, 0},{l209, -1},{- 1, 0},{- 1, 0}
-    }
+    {     {-1, 0},    {-1, 0},    {l109, 1},  {-1, 0},    {-1, 0}     },
+    {     {-1, 0},    {3, 0},     {l108, 1},  {1, 0},     {-1, 0}     },
+    {     {-1, 0},    {l201, -1}, {l204, -1}, {l210, -1}, {-1, 0}     },
+    {     {-1, 0},    {l112, 1},  {l107, 1},  {l103, 1},  {-1, 0}     },
+    {     {-1, 0},    {l202, -1}, {l205, -1}, {l211, -1}, {-1, 0}     },
+    {     {-1, 0},    {-1, 0},    {l106, 1},  {-1, 0},    {-1, 0}     },
+    {     {-1, 0},    {-1, 0},    {l206, -1}, {-1, 0},    {-1, 0}     },
+    {     {-1, 0},    {l111, 1},  {l105, 1},  {l102, 1},  {-1, 0}     },
+    {     {-1, 0},    {l203, -1}, {l207, -1}, {l212, -1}, {-1, 0}     },
+    {     {-1, 0},    {l110, 1},  {l104, 1},  {l101, 1},  {-1, 0}     },
+    {     {-1, 0},    {4, 0},     {l208, -1}, {2, 0},     {-1, 0}     },
+    {     {-1, 0},    {-1, 0},    {l209, -1}, {-1, 0},    {-1, 0}     }
 };
+
 int game = GAME_START, rScore = 0, gScore = 0,
 x = -1, y = -1, vector = 0, xPrev = -1, yPrev = -1, vectorPrev = 0;
 unsigned long currentMillis = 0, previousMillis = 0;
@@ -586,141 +566,125 @@ void in_game()
         }
     if (!ballkick && vector == GREENS)
     {
-        //  2   3   4
-        //  -1  0   1
-        //  -4  -3  -2
-
-
-        /*if (button14.flagClick == 1)
-        {
-            newxy(x - vector, y, vector);
-            ballkick = true;
-        }
-        else
-            if (button13.flagClick == 1)
-            {
-                newxy(x + vector, y, vector);
-                ballkick = true;
-            }
-        else
-            if (button12.flagClick == 1)
-            {
-                newxy(x, y - vector, vector);
-                ballkick = true;
-            }
-        else
-            if (button15.flagClick == 1)
-            {
-                newxy(x, y + vector, vector);
-                ballkick = true;
-            }*/
-            if (button14.flagClick == 1)
+        // directions
+        // 2   3   4
+        // -1   0   1
+        // -4  -3  -2
+        if (button14.flagClick == 1)
         {
             _direction = _direction + 3;
         }
         else
             if (button13.flagClick == 1)
             {
-              _direction = _direction - 3;   
+                _direction = _direction - 3;
             }
         else
             if (button12.flagClick == 1)
             {
-              _direction = _direction - 1;
+                _direction = _direction - 1;
             }
         else
             if (button15.flagClick == 1)
             {
-              _direction = _direction + 1;
- 
-        return;
-    }
-   /* else if (!ballkick && vector == REDS)
-    {
-        if (button24.flagClick == 1)
-        {
-            newxy(x - vector, y, vector);
-            ballkick = true;
-        }
-        else
-            if (button23.flagClick == 1)
-            {
-                newxy(x + vector, y, vector);
-                ballkick = true;
+                _direction = _direction + 1;
             }
-        else
-            if (button22.flagClick == 1)
-            {
+        switch (_direction)
+        {
+            case - 4:
+                newxy(x - vector, y - vector, vector);
+                ballkick = true;
+                break;
+            case - 3:
+                newxy(x - vector, y, vector);
+                ballkick = true;
+                break;
+            case - 2:
+                newxy(x - vector, y + vector, vector);
+                ballkick = true;
+                break;
+            case - 1:
                 newxy(x, y - vector, vector);
                 ballkick = true;
-            }
-        else
-            if (button25.flagClick == 1)
-            {
+                break;
+            case 1:
                 newxy(x, y + vector, vector);
                 ballkick = true;
-            }
-        return;
-    }*/
-    else if (!ballkick && vector == REDS)
-    {
-        if (button24.flagClick == 1)
-        {
-             _direction = _direction + 3;
+                break;
+            case 2:
+                newxy(x + vector, y - vector, vector);
+                ballkick = true;
+                break;
+            case 3:
+                newxy(x + vector, y, vector);
+                ballkick = true;
+                break;
+            case 4:
+                newxy(x + vector, y + vector, vector);
+                ballkick = true;
+                break;
         }
-        else
-            if (button23.flagClick == 1)
-            {
-                 _direction = _direction - 3;
-            }
-        else
-            if (button22.flagClick == 1)
-            {
-                 _direction = _direction - 1;
-            }
-        else
-            if (button25.flagClick == 1)
-            {
-                 _direction = _direction + 1;
-            }
-    switch (_direction) {
-        case -4:
-          newxy(x + vector, y - vector, vector);
-                ballkick = true;
-          break;
-        case -3:
-          newxy(x + vector, y, vector);
-          ballkick = true;
-          break;
-        case -2:
-        newxy(x + vector, y + vector, vector);
-            ballkick = true;
-         break;
-        case -1:
-        newxy(x, y - vector, vector);
-                ballkick = true;
-        break;
-        case 1:
-        newxy(x, y + vector, vector);
-                ballkick = true;
-        break;
-        case 2:
-        newxy(x - vector, y - vector, vector);
-            ballkick = true;
-        break;
-        case 3:
-        newxy(x - vector, y, vector);
-            ballkick = true;
-        break;
-        case 4:
-        newxy(x - vector, y + vector, vector);
-            ballkick = true;
-        break;
-        
-    }
-
         return;
     }
+    else
+        if (!ballkick && vector == REDS)
+        {
+            if (button24.flagClick == 1)
+            {
+                _direction = _direction + 3;
+            }
+            else
+                if (button23.flagClick == 1)
+                {
+                    _direction = _direction - 3;
+                }
+            else
+                if (button22.flagClick == 1)
+                {
+                    _direction = _direction - 1;
+                }
+            else
+                if (button25.flagClick == 1)
+                {
+                    _direction = _direction + 1;
+                }
+            switch (_direction)
+            {
+                case - 4:
+                    newxy(x - vector, y - vector, vector);
+                    ballkick = true;
+                    break;
+                case - 3:
+                    newxy(x - vector, y, vector);
+                    ballkick = true;
+                    break;
+                case - 2:
+                    newxy(x - vector, y + vector, vector);
+                    ballkick = true;
+                    break;
+                case - 1:
+                    newxy(x, y - vector, vector);
+                    ballkick = true;
+                    break;
+                case 1:
+                    newxy(x, y + vector, vector);
+                    ballkick = true;
+                    break;
+                case 2:
+                    newxy(x + vector, y - vector, vector);
+                    ballkick = true;
+                    break;
+                case 3:
+                    newxy(x + vector, y, vector);
+                    ballkick = true;
+                    break;
+                case 4:
+                    newxy(x + vector, y + vector, vector);
+                    ballkick = true;
+                    break;
+            }
+            return;
+        }
     if (ballkick && field[x][y][1] == GREENS)
     {
         if (button11.flagClick == 1)
@@ -836,16 +800,16 @@ void side()
         {
             if (x == 8 || x == 9 || x == 10)
             {
-                newxy(9, 4, GREENS);
+                newxy(9, 3, GREENS);
             }
             else
                 if (x == 5 || x == 6 || x == 7)
                 {
-                    newxy(7, 4, GREENS);
+                    newxy(7, 3, GREENS);
                 }
             else
             {
-                newxy(3, 4, GREENS);
+                newxy(3, 3, GREENS);
             }
         }
     }
