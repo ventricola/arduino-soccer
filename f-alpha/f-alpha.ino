@@ -560,6 +560,7 @@ void start_game()
 
 void in_game()
 {
+    char _direction = 0;
     lcd.setCursor(0, 1);
     lcd.print("Gs: " + String(gScore) + "   Rs: " + String(rScore) + " ");
     currentMillis = millis();
@@ -585,7 +586,12 @@ void in_game()
         }
     if (!ballkick && vector == GREENS)
     {
-        if (button14.flagClick == 1)
+        //  2   3   4
+        //  -1  0   1
+        //  -4  -3  -2
+
+
+        /*if (button14.flagClick == 1)
         {
             newxy(x - vector, y, vector);
             ballkick = true;
@@ -607,10 +613,29 @@ void in_game()
             {
                 newxy(x, y + vector, vector);
                 ballkick = true;
+            }*/
+            if (button14.flagClick == 1)
+        {
+            _direction = _direction + 3;
+        }
+        else
+            if (button13.flagClick == 1)
+            {
+              _direction = _direction - 3;   
             }
+        else
+            if (button12.flagClick == 1)
+            {
+              _direction = _direction - 1;
+            }
+        else
+            if (button15.flagClick == 1)
+            {
+              _direction = _direction + 1;
+ 
         return;
     }
-    else if (!ballkick && vector == REDS)
+   /* else if (!ballkick && vector == REDS)
     {
         if (button24.flagClick == 1)
         {
@@ -635,6 +660,65 @@ void in_game()
                 newxy(x, y + vector, vector);
                 ballkick = true;
             }
+        return;
+    }*/
+    else if (!ballkick && vector == REDS)
+    {
+        if (button24.flagClick == 1)
+        {
+             _direction = _direction + 3;
+        }
+        else
+            if (button23.flagClick == 1)
+            {
+                 _direction = _direction - 3;
+            }
+        else
+            if (button22.flagClick == 1)
+            {
+                 _direction = _direction - 1;
+            }
+        else
+            if (button25.flagClick == 1)
+            {
+                 _direction = _direction + 1;
+            }
+    switch (_direction) {
+        case -4:
+          newxy(x + vector, y - vector, vector);
+                ballkick = true;
+          break;
+        case -3:
+          newxy(x + vector, y, vector);
+          ballkick = true;
+          break;
+        case -2:
+        newxy(x + vector, y + vector, vector);
+            ballkick = true;
+         break;
+        case -1:
+        newxy(x, y - vector, vector);
+                ballkick = true;
+        break;
+        case 1:
+        newxy(x, y + vector, vector);
+                ballkick = true;
+        break;
+        case 2:
+        newxy(x - vector, y - vector, vector);
+            ballkick = true;
+        break;
+        case 3:
+        newxy(x - vector, y, vector);
+            ballkick = true;
+        break;
+        case 4:
+        newxy(x - vector, y + vector, vector);
+            ballkick = true;
+        break;
+        
+    }
+
         return;
     }
     if (ballkick && field[x][y][1] == GREENS)
