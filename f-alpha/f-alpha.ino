@@ -221,16 +221,16 @@ const char field[12][5][2] =
         {- 1, 0 },{- 1, 0},{l109, 1},{- 1, 0},{- 1, 0}
     },
     {
-        {- 1, 0},{1, 0},{l108, 1},{3, 0},{- 1, 0} 
+        {- 1, 0},{3, 0},{l108, 1},{1, 0},{- 1, 0} 
     },
     {
-        {- 1, 0},{l210, -1},{l204, -1},{l201, -1},{- 1, 0}
+        {- 1, 0},{l201, -1},{l204, -1},{l210, -1},{- 1, 0}
     },
     {
-        {- 1, 0},{l103, 1},{l107, 1},{l112, 1},{- 1, 0}
+        {- 1, 0},{l112, 1},{l107, 1},{l103, 1},{- 1, 0}
     },
     {
-        {- 1, 0},{l211, -1},{l205, -1},{l202, -1},{- 1, 0}
+        {- 1, 0},{l202, -1},{l205, -1},{l211, -1},{- 1, 0}
     },
     {
         {- 1, 0},{- 1, 0},{l106, 1},{- 1, 0},{- 1, 0}
@@ -239,16 +239,16 @@ const char field[12][5][2] =
         {- 1, 0},{- 1, 0},{l206, -1},{- 1, 0},{- 1, 0}
     },
     {
-        {- 1, 0},{l102, 1},{l105, 1},{l111, 1},{- 1, 0}
+        {- 1, 0},{l111, 1},{l105, 1},{l102, 1},{- 1, 0}
     },
     {
-        {- 1, 0},{l212, -1},{l207, -1},{l203, -1},{- 1, 0}
+        {- 1, 0},{l203, -1},{l207, -1},{l212, -1},{- 1, 0}
     },
     {
-        {- 1, 0},{l101, 1},{l104, 1},{l110, 1},{- 1, 0}
+        {- 1, 0},{l110, 1},{l104, 1},{l101, 1},{- 1, 0}
     },
     {
-        {- 1, 0},{2, 0},{l208, -1},{4, 0},{- 1, 0}
+        {- 1, 0},{4, 0},{l208, -1},{2, 0},{- 1, 0}
     },
     {
         {- 1, 0},{- 1, 0},{l209, -1},{- 1, 0},{- 1, 0}
@@ -587,25 +587,25 @@ void in_game()
     {
         if (button14.flagClick == 1)
         {
-            newxy(x + vector, y, vector);
+            newxy(x - vector, y, vector);
             ballkick = true;
         }
         else
             if (button13.flagClick == 1)
             {
-                newxy(x - vector, y, vector);
+                newxy(x + vector, y, vector);
                 ballkick = true;
             }
         else
             if (button12.flagClick == 1)
             {
-                newxy(x, y + vector, vector);
+                newxy(x, y - vector, vector);
                 ballkick = true;
             }
         else
             if (button15.flagClick == 1)
             {
-                newxy(x, y - vector, vector);
+                newxy(x, y + vector, vector);
                 ballkick = true;
             }
         return;
@@ -614,25 +614,25 @@ void in_game()
     {
         if (button24.flagClick == 1)
         {
-            newxy(x + vector, y, vector);
+            newxy(x - vector, y, vector);
             ballkick = true;
         }
         else
             if (button23.flagClick == 1)
             {
-                newxy(x - vector, y, vector);
+                newxy(x + vector, y, vector);
                 ballkick = true;
             }
         else
             if (button22.flagClick == 1)
             {
-                newxy(x, y + vector, vector);
+                newxy(x, y - vector, vector);
                 ballkick = true;
             }
         else
             if (button25.flagClick == 1)
             {
-                newxy(x, y - vector, vector);
+                newxy(x, y + vector, vector);
                 ballkick = true;
             }
         return;
