@@ -643,7 +643,7 @@ void in_game()
         {
             reset_buttons_flagClick();
             ballkick = false;
-            vector == GREENS;
+            vector = GREENS;
             return;
         }
     }
@@ -653,7 +653,7 @@ void in_game()
         {
             reset_buttons_flagClick();
             ballkick = false;
-            vector == REDS;
+            vector = REDS;
             return;
         }
     }
