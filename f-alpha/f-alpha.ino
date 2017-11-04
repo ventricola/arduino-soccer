@@ -188,8 +188,8 @@ void timerInterupt()
     button25.scanState();
 }
 
-// LiquidCrystal_I2C lcd(0x3f, 16, 2); // set the LCD address to 0x3f for a 16 chars and 2 line display in prototype board
-LiquidCrystal_I2C lcd(0x27, 16, 2); // set the LCD address to 0x27 for a 16 chars and 2 line display in Proteus
+LiquidCrystal_I2C lcd(0x3f, 16, 2); // set the LCD address to 0x3f for a 16 chars and 2 line display in prototype board
+// LiquidCrystal_I2C lcd(0x27, 16, 2); // set the LCD address to 0x27 for a 16 chars and 2 line display in Proteus
 const char b11 = B11_PIN, b12 = B12_PIN, b13 = B13_PIN, b14 = B14_PIN, b15 = B15_PIN, b21 = B21_PIN, b22 = B22_PIN, b23 = B23_PIN, // buttons
 b24 = B24_PIN, b25 = B25_PIN,
 l101 = L101_PIN, l102 = L102_PIN, l103 = L103_PIN, l104 = L104_PIN, l105 = L105_PIN, l106 = L106_PIN, l107 = L107_PIN, // leds
@@ -254,7 +254,6 @@ const char field[12][5][2] =
         {- 1, 0},{- 1, 0},{l209, -1},{- 1, 0},{- 1, 0}
     }
 };
-
 int game = GAME_START, rScore = 0, gScore = 0,
 x = -1, y = -1, vector = 0, xPrev = -1, yPrev = -1, vectorPrev = 0;
 unsigned long currentMillis = 0, previousMillis = 0;
@@ -584,7 +583,7 @@ void in_game()
             newxy(x + x - xPrev, y + y - yPrev, vector);
             return;
         }
-    if (vector = GREENS)
+    if (vector == GREENS)
     {
         if (button14.flagClick == 1)
         {
@@ -609,29 +608,34 @@ void in_game()
                 newxy(x, y - vector, vector);
                 ballkick = true;
             }
-        else
+        return;
+    }
+    else
+    {
+        if (button24.flagClick == 1)
         {
-            if (button24.flagClick == 1)
-            {
-                newxy(x + vector, y, vector);
-                ballkick = true;
-            }
+            newxy(x + vector, y, vector);
+            ballkick = true;
+        }
+        else
             if (button23.flagClick == 1)
             {
                 newxy(x - vector, y, vector);
                 ballkick = true;
             }
+        else
             if (button22.flagClick == 1)
             {
                 newxy(x, y + vector, vector);
                 ballkick = true;
             }
+        else
             if (button25.flagClick == 1)
             {
                 newxy(x, y - vector, vector);
                 ballkick = true;
             }
-        }
+        return;
     }
     if (field[x][y][1] == GREENS)
     {
