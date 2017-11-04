@@ -218,40 +218,208 @@ l3b = L3B_PIN, l4r = L4R_PIN, l4g = L4G_PIN, l4b = L4B_PIN;
 const char field[12][5][2] =
 {
     {
-        {- 1, 0}, {-1,0}, {l109, 1}, {-1, 0},  {-1, 0}
+        {
+            - 1, 0
+        },
+        {
+            - 1, 0
+        },
+        {
+            l109, 1
+        },
+        {
+            - 1, 0
+        },
+        {
+            - 1, 0
+        }
     },
     {
-        {- 1,0}, {1,0}, {l108,1},  {3,0}, {-1, 0}
+        {
+            - 1, 0
+        },
+        {
+            1, 0
+        },
+        {
+            l108, 1
+        },
+        {
+            3, 0
+        },
+        {
+            - 1, 0
+        }
     },
     {
-        {- 1,0}, {l210, -1}, {l204,-1}, {l201,-1}, {-1,0}
+        {
+            - 1, 0
+        },
+        {
+            l210, -1
+        },
+        {
+            l204, -1
+        },
+        {
+            l201, -1
+        },
+        {
+            - 1, 0
+        }
     },
     {
-        {- 1,0}, {l103,1}, {l107,1}, {l112,1}, {-1,0}
+        {
+            - 1, 0
+        },
+        {
+            l103, 1
+        },
+        {
+            l107, 1
+        },
+        {
+            l112, 1
+        },
+        {
+            - 1, 0
+        }
     },
     {
-        {- 1,0}, {l211,-1}, {l205,-1}, {l202,-1}, {-1,0}
+        {
+            - 1, 0
+        },
+        {
+            l211, -1
+        },
+        {
+            l205, -1
+        },
+        {
+            l202, -1
+        },
+        {
+            - 1, 0
+        }
     },
     {
-        {- 1,0}, {-1,0}, {l106,1}, {-1,0}, {-1,0}
+        {
+            - 1, 0
+        },
+        {
+            - 1, 0
+        },
+        {
+            l106, 1
+        },
+        {
+            - 1, 0
+        },
+        {
+            - 1, 0
+        }
     },
     {
-        {- 1,0}, {-1,0}, {l206,-1}, {-1,0}, {-1,0}
+        {
+            - 1, 0
+        },
+        {
+            - 1, 0
+        },
+        {
+            l206, -1
+        },
+        {
+            - 1, 0
+        },
+        {
+            - 1, 0
+        }
     },
     {
-        {- 1,0}, {l102,1}, {l105,1}, {l111,1}, {-1,0}
+        {
+            - 1, 0
+        },
+        {
+            l102, 1
+        },
+        {
+            l105, 1
+        },
+        {
+            l111, 1
+        },
+        {
+            - 1, 0
+        }
     },
     {
-        {- 1,0}, {l212,-1}, {l207,-1}, {l203,-1}, {-1,0}
+        {
+            - 1, 0
+        },
+        {
+            l212, -1
+        },
+        {
+            l207, -1
+        },
+        {
+            l203, -1
+        },
+        {
+            - 1, 0
+        }
     },
     {
-        {- 1,0}, {l101,1}, {l104,1}, {l110,1}, {-1,0}
+        {
+            - 1, 0
+        },
+        {
+            l101, 1
+        },
+        {
+            l104, 1
+        },
+        {
+            l110, 1
+        },
+        {
+            - 1, 0
+        }
     },
     {
-        {- 1,0}, {2,0}, {l208,-1}, {4,0}, {-1,0}
+        {
+            - 1, 0
+        },
+        {
+            2, 0
+        },
+        {
+            l208, -1
+        },
+        {
+            4, 0
+        },
+        {
+            - 1, 0
+        }
     },
     {
-        {- 1,0}, {-1,0}, {l209,-1}, {-1,0}, {-1,0}
+        {
+            - 1, 0
+        },
+        {
+            - 1, 0
+        },
+        {
+            l209, -1
+        },
+        {
+            - 1, 0
+        },
+        {
+            - 1, 0
+        }
     }
 };
 
@@ -584,7 +752,7 @@ void in_game()
             newxy(x + x - xPrev, y + y - yPrev, vector);
             return;
         }
-    if (vector = GREENS) 
+    if (vector = GREENS)
     {
         if (button14.flagClick == 1)
         {
@@ -633,28 +801,27 @@ void in_game()
             }
         }
     }
-    
     if (field[x][y][1] == GREENS)
     {
-      if (button11.flagClick == 1)
+        if (button11.flagClick == 1)
         {
-           ballkick = false;
-           vector == GREENS;
-        } 
-        
+            reset_buttons_flagClick();
+            ballkick = false;
+            vector == GREENS;
+            return;
+        }
     }
     if (field[x][y][1] == REDS)
     {
-      if (button21.flagClick == 1)
+        if (button21.flagClick == 1)
         {
-           ballkick = false;
-           vector == REDS;
-        } 
-        
+            reset_buttons_flagClick();
+            ballkick = false;
+            vector == REDS;
+            return;
+        }
     }
-        
 }
-
 
 void goal()
 {
@@ -662,7 +829,7 @@ void goal()
     audio.stopPlayback();
     pcm("whistle.wav");
     // tone(SPEAKER_PIN, 3000, 250);
-    reset_buttons_flagClick;
+    reset_buttons_flagClick();
     ballkick = false;
     game = GAME_PERFORMED;
     lcd.setCursor(0, 0);
@@ -764,7 +931,6 @@ void side()
     }
 }
 
-
 void goalline()
 {
     currentMillis = millis();
@@ -832,8 +998,6 @@ void offside()
             newxy(5, 2, GREENS);
         }
 }
-
-
 
 void loop()
 {
