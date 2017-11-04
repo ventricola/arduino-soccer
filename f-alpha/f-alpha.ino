@@ -583,7 +583,7 @@ void in_game()
             newxy(x + x - xPrev, y + y - yPrev, vector);
             return;
         }
-    if (vector == GREENS)
+    if (!ballkick && vector == GREENS)
     {
         if (button14.flagClick == 1)
         {
@@ -610,7 +610,7 @@ void in_game()
             }
         return;
     }
-    else
+    else if (!ballkick && vector == REDS)
     {
         if (button24.flagClick == 1)
         {
@@ -637,7 +637,7 @@ void in_game()
             }
         return;
     }
-    if (field[x][y][1] == GREENS)
+    if (ballkick && field[x][y][1] == GREENS)
     {
         if (button11.flagClick == 1)
         {
@@ -647,7 +647,7 @@ void in_game()
             return;
         }
     }
-    if (field[x][y][1] == REDS)
+    if (ballkick && field[x][y][1] == REDS)
     {
         if (button21.flagClick == 1)
         {
