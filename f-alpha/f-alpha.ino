@@ -1,12 +1,25 @@
 #include <Wire.h> //include  i2c library
 #include <LiquidCrystal_I2C.h> //include library for work with lcd display via i2c
 #include <MsTimer2.h>
+
+//#define ENABLE_SD
+//#ifdef ENABLE_PCM
+
+//#define LCD_ADDR 0x3f // set the LCD address to 0x3f for a 16 chars and 2 line display in prototype board
+#define LCD_ADDR 0x27 // set the LCD address to 0x27 for a 16 chars and 2 line display in Proteus
+
+#ifdef ENABLE_SD 
 #include <SD.h> // need to include the SD library
 // #define SD_ChipSelectPin 53  //example uses hardware SS pin 53 on Mega2560
 // #define SD_ChipSelectPin 4  //using digital pin 4 on arduino nano 328, can use other pins
+#include <SPI.h>
+#endif
+
+#ifdef ENABLE_PCM 
 #include <TMRpcm.h> //  also need to include this library...
 // uncomment //#define DISABLE_SPEAKER2 in pcmConfig.h to disable companion speaker on pin 45, used for l104!
-#include <SPI.h>
+#endif
+
 #define GAME_START 0
 #define GAME_PERFORMED 1
 #define GAME_SIDE_OUT 2
@@ -173,22 +186,12 @@ volatile Button button22(B22_PIN, 15);
 volatile Button button23(B23_PIN, 15);
 volatile Button button24(B24_PIN, 15);
 volatile Button button25(B25_PIN, 15);
-TMRpcm audio; // create an object for use in this sketch
-void timerInterupt()
-{
-    button11.scanState(); // вызов метода ожидания стабильного состояния для кнопки
-    button12.scanState();
-    button13.scanState();
-    button14.scanState();
-    button15.scanState();
-    button21.scanState();
-    button22.scanState();
-    button23.scanState();
-    button24.scanState();
-    button25.scanState();
-}
 
-LiquidCrystal_I2C lcd(0x3f, 16, 2); // set the LCD address to 0x3f for a 16 chars and 2 line display in prototype board
+#ifdef ENABLE_PCM
+TMRpcm audio; // create an object for use in this sketch
+#endif
+
+LiquidCrystal_I2C lcd(LCD_ADDR, 16, 2); // set the LCD address to 0x3f for a 16 chars and 2 line display in prototype board
 // LiquidCrystal_I2C lcd(0x27, 16, 2); // set the LCD address to 0x27 for a 16 chars and 2 line display in Proteus
 const char b11 = B11_PIN, b12 = B12_PIN, b13 = B13_PIN, b14 = B14_PIN, b15 = B15_PIN, b21 = B21_PIN, b22 = B22_PIN, b23 = B23_PIN, // buttons
 b24 = B24_PIN, b25 = B25_PIN,
@@ -238,7 +241,11 @@ int game = GAME_START, rScore = 0, gScore = 0,
 x = -1, y = -1, vector = 0, xPrev = -1, yPrev = -1, vectorPrev = 0;
 unsigned long currentMillis = 0, previousMillis = 0;
 boolean ballkick = false, debug = true, sdEnable = false;
+
+#ifdef ENABLE_SD
 File logFile;
+#endif
+
 void log(String _str, String _lcdStr)
 {
     if (debug)
@@ -250,9 +257,11 @@ void log(String _str, String _lcdStr)
         lcd.print(_lcdStr);
         if (sdEnable)
         {
+            #ifdef ENABLE_SD
             logFile.print(millis() + "    ");
             logFile.println(_str);
-            // logFile.flush();
+            logFile.flush();
+            #endif
         }
     }
 }
@@ -264,9 +273,11 @@ void log(String _str)
         Serial.println(_str);
         if (sdEnable)
         {
+            #ifdef ENABLE_SD
             logFile.print(millis() + "    ");
             logFile.println(_str);
-            // logFile.flush();
+            logFile.flush();
+            #endif
         }
     }
 }
@@ -275,8 +286,24 @@ void pcm(char * _filename)
 {
     if (digitalRead(DEBUG2_PIN))
     {
+        #ifdef ENABLE_PCM
         audio.play(_filename);
+        #endif
     }
+}
+
+void timerInterupt()
+{
+    if (button11.scanState()) log ("button11 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis)); // вызов метода ожидания стабильного состояния для кнопки
+    if (button12.scanState()) log ("button12 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis));
+    if (button13.scanState()) log ("button13 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis));
+    if (button14.scanState()) log ("button14 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis));
+    if (button15.scanState()) log ("button15 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis));
+    if (button21.scanState()) log ("button21 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis));
+    if (button22.scanState()) log ("button22 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis));
+    if (button23.scanState()) log ("button23 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis));
+    if (button24.scanState()) log ("button24 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis));
+    if (button25.scanState()) log ("button25 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis));
 }
 
 void setup()
@@ -307,8 +334,14 @@ void setup()
         // init rgb leds
         pinMode(i, OUTPUT);
     }
+    
+    #ifdef ENABLE_PCM
     audio.speakerPin = SPEAKER_PIN; // 5,6,11 or 46 on Mega, 9 on Uno, Nano, etc
+    #endif
+
     Serial.begin(9600);
+    
+    #ifdef ENABLE_SD    
     if (!SD.begin(SD_SS_PIN))
     {
         // see if the card is present and can be initialized:
@@ -335,6 +368,7 @@ void setup()
             break;
         }
     }
+    #endif
 }
 
 void reset_buttons_flagClick()
@@ -459,6 +493,11 @@ void start_game()
     game = -1;
     lcd.init();
     reset_buttons_flagClick;
+    log("Who is faster cowboy?! Press catch button after the beep!");
+    lcd.setCursor(0, 0);
+    lcd.print("Who is faster?! ");
+    lcd.setCursor(0, 1);
+    lcd.print("Catch after beep");
     pcm("ole.wav");
     for (int j = random(100, 1000); j > 0; j = j - 100)
     {
@@ -510,8 +549,19 @@ void start_game()
             }
     }
     // tone(SPEAKER_PIN, 3000, 250);
+    log("Catch ball!");
+    lcd.setCursor(0, 0);
+    lcd.print("Fast draw!      ");
+    lcd.setCursor(0, 1);
+    lcd.print("Who's cowboy!   ");
+    
+    #ifdef ENABLE_PCM
     audio.stopPlayback();
     pcm("whistle.wav");
+    #else
+    tone(SPEAKER_PIN, 3000, 250);
+    #endif
+
     reset_buttons_flagClick;
     while (1)
     {
@@ -710,9 +760,14 @@ void in_game()
 void goal()
 {
     currentMillis = millis();
+    
+    #ifdef ENABLE_PCM
     audio.stopPlayback();
     pcm("whistle.wav");
-    // tone(SPEAKER_PIN, 3000, 250);
+    #else
+    tone(SPEAKER_PIN, 3000, 250);
+    #endif
+
     reset_buttons_flagClick();
     ballkick = false;
     game = GAME_PERFORMED;
