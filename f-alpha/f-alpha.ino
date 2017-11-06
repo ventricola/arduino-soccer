@@ -1,21 +1,19 @@
 #include <Wire.h> //include  i2c library
 #include <LiquidCrystal_I2C.h> //include library for work with lcd display via i2c
 #include <MsTimer2.h>
+// #define ENABLE_SD
+// #ifdef ENABLE_PCM
+#define LCD_ADDR 0x3f // set the LCD address to 0x3f for a 16 chars and 2 line display in prototype board
+//#define LCD_ADDR 0x27 // set the LCD address to 0x27 for a 16 chars and 2 line display in Proteus
 
-//#define ENABLE_SD
-//#ifdef ENABLE_PCM
-
-//#define LCD_ADDR 0x3f // set the LCD address to 0x3f for a 16 chars and 2 line display in prototype board
-#define LCD_ADDR 0x27 // set the LCD address to 0x27 for a 16 chars and 2 line display in Proteus
-
-#ifdef ENABLE_SD 
+#ifdef ENABLE_SD
 #include <SD.h> // need to include the SD library
 // #define SD_ChipSelectPin 53  //example uses hardware SS pin 53 on Mega2560
 // #define SD_ChipSelectPin 4  //using digital pin 4 on arduino nano 328, can use other pins
 #include <SPI.h>
 #endif
 
-#ifdef ENABLE_PCM 
+#ifdef ENABLE_PCM
 #include <TMRpcm.h> //  also need to include this library...
 // uncomment //#define DISABLE_SPEAKER2 in pcmConfig.h to disable companion speaker on pin 45, used for l104!
 #endif
@@ -25,9 +23,15 @@
 #define GAME_SIDE_OUT 2
 #define GAME_END_OUT 3
 #define GAME_OFFSIDE 4
+#define GAME_HALFEND 5
+#define GAME_STOP 6
 #define GAME_GOAL 9
 #define GREENS 1
 #define REDS - 1
+#define OFFSIDE_TIMEOUT 10000
+#define TIME_TIMEOUT 180000
+#define CATCH_TIMEOUT 300
+#define GOALKEEPER_TIMEOUT 500
 #define POT_PIN A15
 #define RANDOMSEED_PIN A14
 #define SPEAKER_PIN 46
@@ -201,7 +205,6 @@ l203 = L203_PIN, l204 = L204_PIN, l205 = L205_PIN, l206 = L206_PIN, l207 = L207_
 l210 = L210_PIN, l211 = L211_PIN, l212 = L212_PIN,
 l1r = L1R_PIN, l1g = L1G_PIN, l1b = L1B_PIN, l2r = L2R_PIN, l2g = L2G_PIN, l2b = L2B_PIN, l3r = L3R_PIN, l3g = L3G_PIN, // rgb leds
 l3b = L3B_PIN, l4r = L4R_PIN, l4g = L4G_PIN, l4b = L4B_PIN;
-
 // const char field[12][5][2] =
 // {
 // xy         0           1           2           3           4
@@ -216,30 +219,221 @@ l3b = L3B_PIN, l4r = L4R_PIN, l4g = L4G_PIN, l4b = L4B_PIN;
 // 7    {     {-1, 0},    {l111, 1},  {l105, 1},  {l102, 1},  {-1, 0}     },
 // 8    {     {-1, 0},    {l203, -1}, {l207, -1}, {l212, -1}, {-1, 0}     },
 // 9    {     {-1, 0},    {l110, 1},  {l104, 1},  {l101, 1},  {-1, 0}     },
-// 10    {     {-1, 0},    {4, 0},     {l208, -1}, {2, 0},     {-1, 0}     },
-// 11    {     {-1, 0},    {-1, 0},    {l209, -1}, {-1, 0},    {-1, 0}     }
+// 10   {     {-1, 0},    {4, 0},     {l208, -1}, {2, 0},     {-1, 0}     },
+// 11   {     {-1, 0},    {-1, 0},    {l209, -1}, {-1, 0},    {-1, 0}     }
 // REDS
 // };
-
 const char field[12][5][2] =
 {
-    {     {-1, 0},    {-1, 0},    {l109, 1},  {-1, 0},    {-1, 0}     },
-    {     {-1, 0},    {3, 0},     {l108, 1},  {1, 0},     {-1, 0}     },
-    {     {-1, 0},    {l201, -1}, {l204, -1}, {l210, -1}, {-1, 0}     },
-    {     {-1, 0},    {l112, 1},  {l107, 1},  {l103, 1},  {-1, 0}     },
-    {     {-1, 0},    {l202, -1}, {l205, -1}, {l211, -1}, {-1, 0}     },
-    {     {-1, 0},    {-1, 0},    {l106, 1},  {-1, 0},    {-1, 0}     },
-    {     {-1, 0},    {-1, 0},    {l206, -1}, {-1, 0},    {-1, 0}     },
-    {     {-1, 0},    {l111, 1},  {l105, 1},  {l102, 1},  {-1, 0}     },
-    {     {-1, 0},    {l203, -1}, {l207, -1}, {l212, -1}, {-1, 0}     },
-    {     {-1, 0},    {l110, 1},  {l104, 1},  {l101, 1},  {-1, 0}     },
-    {     {-1, 0},    {4, 0},     {l208, -1}, {2, 0},     {-1, 0}     },
-    {     {-1, 0},    {-1, 0},    {l209, -1}, {-1, 0},    {-1, 0}     }
+    {
+        {
+            - 1, 0
+        },
+        {
+            - 1, 0
+        },
+        {
+            l109, 1
+        },
+        {
+            - 1, 0
+        },
+        {
+            - 1, 0
+        }
+    },
+    {
+        {
+            - 1, 0
+        },
+        {
+            3, 0
+        },
+        {
+            l108, 1
+        },
+        {
+            1, 0
+        },
+        {
+            - 1, 0
+        }
+    },
+    {
+        {
+            - 1, 0
+        },
+        {
+            l201, -1
+        },
+        {
+            l204, -1
+        },
+        {
+            l210, -1
+        },
+        {
+            - 1, 0
+        }
+    },
+    {
+        {
+            - 1, 0
+        },
+        {
+            l112, 1
+        },
+        {
+            l107, 1
+        },
+        {
+            l103, 1
+        },
+        {
+            - 1, 0
+        }
+    },
+    {
+        {
+            - 1, 0
+        },
+        {
+            l202, -1
+        },
+        {
+            l205, -1
+        },
+        {
+            l211, -1
+        },
+        {
+            - 1, 0
+        }
+    },
+    {
+        {
+            - 1, 0
+        },
+        {
+            - 1, 0
+        },
+        {
+            l106, 1
+        },
+        {
+            - 1, 0
+        },
+        {
+            - 1, 0
+        }
+    },
+    {
+        {
+            - 1, 0
+        },
+        {
+            - 1, 0
+        },
+        {
+            l206, -1
+        },
+        {
+            - 1, 0
+        },
+        {
+            - 1, 0
+        }
+    },
+    {
+        {
+            - 1, 0
+        },
+        {
+            l111, 1
+        },
+        {
+            l105, 1
+        },
+        {
+            l102, 1
+        },
+        {
+            - 1, 0
+        }
+    },
+    {
+        {
+            - 1, 0
+        },
+        {
+            l203, -1
+        },
+        {
+            l207, -1
+        },
+        {
+            l212, -1
+        },
+        {
+            - 1, 0
+        }
+    },
+    {
+        {
+            - 1, 0
+        },
+        {
+            l110, 1
+        },
+        {
+            l104, 1
+        },
+        {
+            l101, 1
+        },
+        {
+            - 1, 0
+        }
+    },
+    {
+        {
+            - 1, 0
+        },
+        {
+            4, 0
+        },
+        {
+            l208, -1
+        },
+        {
+            2, 0
+        },
+        {
+            - 1, 0
+        }
+    },
+    {
+        {
+            - 1, 0
+        },
+        {
+            - 1, 0
+        },
+        {
+            l209, -1
+        },
+        {
+            - 1, 0
+        },
+        {
+            - 1, 0
+        }
+    }
 };
 
-int game = GAME_START, rScore = 0, gScore = 0,
-x = -1, y = -1, vector = 0, xPrev = -1, yPrev = -1, vectorPrev = 0;
-unsigned long currentMillis = 0, previousMillis = 0;
+int8_t game = GAME_START, rScore = 0, gScore = 0, dice = 0,
+x = -1, y = -1, vector = 0, xPrev = -1, yPrev = -1, vectorPrev = 0, vector1st = 0;
+unsigned long currentMillis = 0, previousMillis = 0, start1stTimeMillis = 0, start2ndTimeMillis = 0;
 boolean ballkick = false, debug = true, sdEnable = false;
 
 #ifdef ENABLE_SD
@@ -257,11 +451,13 @@ void log(String _str, String _lcdStr)
         lcd.print(_lcdStr);
         if (sdEnable)
         {
-            #ifdef ENABLE_SD
+
+#ifdef ENABLE_SD
             logFile.print(millis() + "    ");
             logFile.println(_str);
             logFile.flush();
-            #endif
+#endif
+
         }
     }
 }
@@ -273,11 +469,13 @@ void log(String _str)
         Serial.println(_str);
         if (sdEnable)
         {
-            #ifdef ENABLE_SD
+
+#ifdef ENABLE_SD
             logFile.print(millis() + "    ");
             logFile.println(_str);
             logFile.flush();
-            #endif
+#endif
+
         }
     }
 }
@@ -286,24 +484,36 @@ void pcm(char * _filename)
 {
     if (digitalRead(DEBUG2_PIN))
     {
-        #ifdef ENABLE_PCM
+
+#ifdef ENABLE_PCM
         audio.play(_filename);
-        #endif
+#endif
+
     }
 }
 
 void timerInterupt()
 {
-    if (button11.scanState()) log ("button11 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis)); // вызов метода ожидания стабильного состояния для кнопки
-    if (button12.scanState()) log ("button12 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis));
-    if (button13.scanState()) log ("button13 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis));
-    if (button14.scanState()) log ("button14 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis));
-    if (button15.scanState()) log ("button15 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis));
-    if (button21.scanState()) log ("button21 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis));
-    if (button22.scanState()) log ("button22 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis));
-    if (button23.scanState()) log ("button23 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis));
-    if (button24.scanState()) log ("button24 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis));
-    if (button25.scanState()) log ("button25 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis));
+    if (button11.scanState())
+        log("button11 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis)); // вызов метода ожидания стабильного состояния для кнопки
+    if (button12.scanState())
+        log("button12 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis));
+    if (button13.scanState())
+        log("button13 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis));
+    if (button14.scanState())
+        log("button14 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis));
+    if (button15.scanState())
+        log("button15 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis));
+    if (button21.scanState())
+        log("button21 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis));
+    if (button22.scanState())
+        log("button22 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis));
+    if (button23.scanState())
+        log("button23 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis));
+    if (button24.scanState())
+        log("button24 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis));
+    if (button25.scanState())
+        log("button25 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis));
 }
 
 void setup()
@@ -334,14 +544,14 @@ void setup()
         // init rgb leds
         pinMode(i, OUTPUT);
     }
-    
-    #ifdef ENABLE_PCM
+
+#ifdef ENABLE_PCM
     audio.speakerPin = SPEAKER_PIN; // 5,6,11 or 46 on Mega, 9 on Uno, Nano, etc
-    #endif
+#endif
 
     Serial.begin(9600);
-    
-    #ifdef ENABLE_SD    
+
+#ifdef ENABLE_SD
     if (!SD.begin(SD_SS_PIN))
     {
         // see if the card is present and can be initialized:
@@ -368,7 +578,8 @@ void setup()
             break;
         }
     }
-    #endif
+#endif
+
 }
 
 void reset_buttons_flagClick()
@@ -439,6 +650,7 @@ char getRGBPin(char _lRGB, int _vector)
 
 void newxy(int _x, int _y, int _vector)
 {
+    boolean _goal = false;
     xPrev = x;
     yPrev = y;
     vectorPrev = vector;
@@ -449,6 +661,10 @@ void newxy(int _x, int _y, int _vector)
     log("Newxy on " + String(x) + "," + String(y) + "," + String(vector) + " at " + String(currentMillis) + " after " + String(previousMillis));
     previousMillis = currentMillis;
     reset_buttons_flagClick();
+    if (y == 2 && (x == 0 || x == 11) && random(10)+dice>6) // 30% + (-30% - +30% кости)
+    {
+        _goal = true;
+    }
     if (field[x][y][0] != -1)
     // проверка наличия светодиода в новой координате
     {
@@ -458,7 +674,7 @@ void newxy(int _x, int _y, int _vector)
             digitalWrite(getRGBPin(field[x][y][0], vector), HIGH);
         }
         else
-            if (field[x][y][0] >= LMIN_PIN)
+            if (field[x][y][0] >= LMIN_PIN && !(y == 2 && (x == 0 || x == 11) && !_goal))
                 digitalWrite(field[x][y][0], HIGH); // кроме угловых
     }
     if (field[xPrev][yPrev][0] != -1)
@@ -476,12 +692,12 @@ void newxy(int _x, int _y, int _vector)
         game = GAME_SIDE_OUT;
         return;
     }
-    if (y == 2 && (x == 0 || x == 11))
+    if (_goal)
     {
         game = GAME_GOAL;
         return;
     }
-    if (y != 2 && (x == 0 || x == 11))
+    if (x == 0 || x == 11)
     {
         game = GAME_END_OUT;
         return;
@@ -493,12 +709,12 @@ void start_game()
     game = -1;
     lcd.init();
     reset_buttons_flagClick;
+    pcm("ole.wav");
     log("Who is faster cowboy?! Press catch button after the beep!");
     lcd.setCursor(0, 0);
     lcd.print("Who is faster?! ");
     lcd.setCursor(0, 1);
     lcd.print("Catch after beep");
-    pcm("ole.wav");
     for (int j = random(100, 1000); j > 0; j = j - 100)
     {
         currentMillis = millis();
@@ -516,37 +732,41 @@ void start_game()
             digitalWrite(i, LOW);
         }
         delay(j);
-        if (button11.flagClick == 1 && button21.flagClick == 1)
+        if (button11.flagClick == 1 || button21.flagClick == 1)
         {
-            lcd.setCursor(0, 0);
-            lcd.print("Cross fail!     ");
-            log("Cross falsestart at " + String(currentMillis) + " after " + String(previousMillis));
+            if (button11.flagClick == 1 && button21.flagClick == 1)
+            {
+                lcd.setCursor(0, 0);
+                lcd.print("Cross fail!     ");
+                log("Cross falsestart at " + String(currentMillis) + " after " + String(previousMillis));
+            }
+            else
+                if (button21.flagClick == 1)
+                {
+                    lcd.setCursor(0, 0);
+                    lcd.print("Reds fail!      ");
+                    lcd.setCursor(0, 1);
+                    lcd.print("Greens win!     ");
+                    log("Reds falsestart and greens win at " + String(currentMillis) + " after " + String(previousMillis));
+                    game = GAME_PERFORMED;
+                    newxy(5, 2, GREENS);
+                    vector1st = GREENS;
+                }
+            else
+                if (button11.flagClick == 1)
+                {
+                    lcd.setCursor(0, 0);
+                    lcd.print("Greens fail!    ");
+                    lcd.setCursor(0, 1);
+                    lcd.print("Reds win!       ");
+                    log("Greens falsestart and reds win at " + String(currentMillis) + " after " + String(previousMillis));
+                    game = GAME_PERFORMED;
+                    newxy(6, 2, REDS);
+                    vector1st = REDS;
+                }
+            start1stTimeMillis = millis();
             return;
         }
-        else
-            if (button21.flagClick == 1)
-            {
-                lcd.setCursor(0, 0);
-                lcd.print("Reds fail!      ");
-                lcd.setCursor(0, 1);
-                lcd.print("Greens win!     ");
-                log("Reds falsestart and greens win at " + String(currentMillis) + " after " + String(previousMillis));
-                game = GAME_PERFORMED;
-                newxy(5, 2, GREENS);
-                return;
-            }
-        else
-            if (button11.flagClick == 1)
-            {
-                lcd.setCursor(0, 0);
-                lcd.print("Greens fail!    ");
-                lcd.setCursor(0, 1);
-                lcd.print("Reds win!       ");
-                log("Greens falsestart and reds win at " + String(currentMillis) + " after " + String(previousMillis));
-                game = GAME_PERFORMED;
-                newxy(6, 2, REDS);
-                return;
-            }
     }
     // tone(SPEAKER_PIN, 3000, 250);
     log("Catch ball!");
@@ -554,37 +774,50 @@ void start_game()
     lcd.print("Fast draw!      ");
     lcd.setCursor(0, 1);
     lcd.print("Who's cowboy!   ");
-    
-    #ifdef ENABLE_PCM
+
+#ifdef ENABLE_PCM
     audio.stopPlayback();
     pcm("whistle.wav");
-    #else
-    tone(SPEAKER_PIN, 3000, 250);
-    #endif
+#else
+    tone(SPEAKER_PIN, 3000, 1000);
+#endif
 
     reset_buttons_flagClick;
     while (1)
     {
         currentMillis = millis();
-        if (button11.flagClick == 1)
+        if (button11.flagClick == 1 || button21.flagClick == 1)
         {
-            lcd.setCursor(0, 0);
-            lcd.print("Greens win!     ");
-            log("Greens win at " + String(currentMillis) + " after " + String(previousMillis));
-            game = GAME_PERFORMED;
-            newxy(5, 2, GREENS);
-            return;
-        }
-        else
-            if (button21.flagClick == 1)
+            if (button11.flagClick == 1 && button21.flagClick == 1)
             {
                 lcd.setCursor(0, 0);
-                lcd.print("Reds win!   ");
-                log("Reds win at " + String(currentMillis) + " after " + String(previousMillis));
-                game = GAME_PERFORMED;
-                newxy(6, 2, REDS);
-                return;
+                lcd.print("Draw game!Again!");
+                log("Draw game at " + String(currentMillis) + " after " + String(previousMillis));
+                game = GAME_START;
             }
+            else
+                if (button11.flagClick == 1)
+                {
+                    lcd.setCursor(0, 0);
+                    lcd.print("Greens win!     ");
+                    log("Greens win at " + String(currentMillis) + " after " + String(previousMillis));
+                    game = GAME_PERFORMED;
+                    newxy(5, 2, GREENS);
+                    vector1st = GREENS;
+                }
+            else
+                if (button21.flagClick == 1)
+                {
+                    lcd.setCursor(0, 0);
+                    lcd.print("Reds win!   ");
+                    log("Reds win at " + String(currentMillis) + " after " + String(previousMillis));
+                    game = GAME_PERFORMED;
+                    newxy(6, 2, REDS);
+                    vector1st = REDS;
+                }
+        start1stTimeMillis = millis();
+        return;
+        }
     }
 }
 
@@ -594,22 +827,34 @@ void in_game()
     lcd.setCursor(0, 1);
     lcd.print("Gs: " + String(gScore) + "   Rs: " + String(rScore) + " ");
     currentMillis = millis();
-    if (!ballkick && ((currentMillis - previousMillis) >= 3000))
-    // offside, мяч не в игре 3 с
+    if (start1stTimeMillis > 0 && (currentMillis - start1stTimeMillis) >= TIME_TIMEOUT && start2ndTimeMillis == 0)
+        // конец 1го тайма
+        {
+            game = GAME_HALFEND;
+            return;
+        }
+    if (start2ndTimeMillis > 0 && (currentMillis - start2ndTimeMillis) >= TIME_TIMEOUT)
+        // конец 2го тайма
+        {
+            game = GAME_STOP;
+            return;
+        }
+    if (!ballkick && ((currentMillis - previousMillis) >= OFFSIDE_TIMEOUT))
+    // offside, мяч не в игре 10 с
     {
         game = GAME_OFFSIDE;
         return;
     }
     else
-        if (ballkick && ((currentMillis - previousMillis) >= 500) && y == 2 && (x + x - xPrev == 0 || x + x - xPrev == 11))
-        // мяч не перехвачен за 0.5 с
+        if (ballkick && ((currentMillis - previousMillis) >= GOALKEEPER_TIMEOUT) && y == 2 && (x + x - xPrev == 0 || x + x - xPrev == 11))
+        // мяч не перехвачен за 0.5-0.8 с
         {
             newxy(x + x - xPrev, y + y - yPrev, vector);
             return;
         }
     else
-        if (ballkick && ((currentMillis - previousMillis) >= 300))
-        // мяч не перехвачен за 0.3 с
+        if (ballkick && ((currentMillis - previousMillis) >= CATCH_TIMEOUT))
+        // мяч не перехвачен за 0.3-0.5 с
         {
             newxy(x + x - xPrev, y + y - yPrev, vector);
             return;
@@ -737,7 +982,7 @@ void in_game()
         }
     if (ballkick && field[x][y][1] == GREENS)
     {
-        if (button11.flagClick == 1)
+        if (button11.flagClick == 1 && random(10)+dice>4) //50% + (-30% - +30% кости)
         {
             reset_buttons_flagClick();
             ballkick = false;
@@ -747,7 +992,7 @@ void in_game()
     }
     if (ballkick && field[x][y][1] == REDS)
     {
-        if (button21.flagClick == 1)
+        if (button21.flagClick == 1 && random(10)+dice>4) //50% + (-30% - +30% кости)
         {
             reset_buttons_flagClick();
             ballkick = false;
@@ -760,13 +1005,13 @@ void in_game()
 void goal()
 {
     currentMillis = millis();
-    
-    #ifdef ENABLE_PCM
+
+#ifdef ENABLE_PCM
     audio.stopPlayback();
     pcm("whistle.wav");
-    #else
-    tone(SPEAKER_PIN, 3000, 250);
-    #endif
+#else
+    tone(SPEAKER_PIN, 3000, 750);
+#endif
 
     reset_buttons_flagClick();
     ballkick = false;
@@ -888,12 +1133,12 @@ void goalline()
         else
             if (x == 0)
             {
-                if (y == 3 || y == 4)
+                if (y == 3 || y == 4 || (y == 2 && random(2)>0))
                 {
                     newxy(1, 3, REDS);
                 }
                 else
-                    if (y == 0 || y == 1)
+//                    if (y == 0 || y == 1)
                     {
                         newxy(1, 1, REDS);
                     }
@@ -907,12 +1152,12 @@ void goalline()
     else
         if (x == 11)
         {
-            if (y == 3 || y == 4)
+            if (y == 3 || y == 4 || (y == 2 && random(2)>0))
             {
                 newxy(10, 3, GREENS);
             }
             else
-                if (y == 0 || y == 1)
+//                if (y == 0 || y == 1)
                 {
                     newxy(10, 1, GREENS);
                 }
@@ -923,6 +1168,14 @@ void offside()
 {
     currentMillis = millis();
     log("Offside at " + String(currentMillis) + " after " + String(previousMillis));
+    lcd.setCursor(0, 0);
+    lcd.print("Offside!        ");
+#ifdef ENABLE_PCM
+    audio.stopPlayback();
+    pcm("whistle.wav");
+#else
+    tone(SPEAKER_PIN, 3000, 250);
+#endif
     previousMillis = currentMillis;
     reset_buttons_flagClick();
     ballkick = false;
@@ -938,22 +1191,124 @@ void offside()
         }
 }
 
+void nexttime()
+{
+
+#ifdef ENABLE_PCM
+    audio.stopPlayback();
+    pcm("whistle.wav");
+#else
+    tone(SPEAKER_PIN, 3000, 1000);
+#endif
+
+    currentMillis = millis();
+    log("Start 2nd time at " + String(currentMillis) + " after " + String(previousMillis));
+    lcd.setCursor(0, 0);
+    lcd.print("2nd time begins!");
+    lcd.setCursor(0, 1);
+    lcd.print("Press any key...");
+    reset_buttons_flagClick();
+    ballkick = false;
+
+    game = GAME_PERFORMED;
+    if (vector1st != GREENS)
+    {
+        newxy(5, 2, GREENS);
+    }
+    else
+    {
+        newxy(6, 2, REDS);
+    }
+    while (!(button11.flagClick || button12.flagClick || button13.flagClick || button14.flagClick || button15.flagClick ||
+    button21.flagClick || button22.flagClick || button23.flagClick || button24.flagClick || button25.flagClick) || currentMillis - previousMillis >= 30000 )
+    {
+    currentMillis = millis();
+    }
+
+#ifdef ENABLE_PCM
+    audio.stopPlayback();
+    pcm("whistle.wav");
+#else
+    tone(SPEAKER_PIN, 3000, 250);
+#endif
+    start2ndTimeMillis = millis();
+    previousMillis = currentMillis;
+}
+
+void stop_game()
+{
+    currentMillis = millis();
+
+#ifdef ENABLE_PCM
+    audio.stopPlayback();
+    pcm("whistle.wav");
+#else
+    tone(SPEAKER_PIN, 3000, 1000);
+#endif
+
+    reset_buttons_flagClick();
+    ballkick = false;
+    log("Game ends at " + String(currentMillis) + " after " + String(previousMillis));
+    if (gScore > rScore)
+    {
+        lcd.setCursor(0, 0);
+        lcd.print("Greens win!    ");
+        lcd.setCursor(0, 1);
+        lcd.print("Gs: " + String(gScore) + "   Rs: " + String(rScore) + " ");
+        log("Greens win with score " + String(gScore) + " vs " + String(rScore) + "!");
+    }
+    else
+        if (gScore < rScore)
+        {
+            lcd.setCursor(0, 0);
+            lcd.print("Reds win!       ");
+            lcd.setCursor(0, 1);
+            lcd.print("Gs: " + String(gScore) + "   Rs: " + String(rScore) + " ");
+            log("Reds win with score " + String(rScore) + " vs " + String(gScore) + "!");
+        }
+    else
+    {
+        lcd.setCursor(0, 0);
+        lcd.print("Draw game!      ");
+        lcd.setCursor(0, 1);
+        lcd.print("Gs: " + String(gScore) + "   Rs: " + String(rScore) + " ");
+        log("Draw game with score " + String(gScore) + " vs " + String(rScore) + "!");
+    }
+    delay(7000);
+    lcd.setCursor(0, 0);
+    lcd.print("Final score:    ");
+    lcd.setCursor(0, 1);
+    lcd.print("Gs: " + String(gScore) + "   Rs: " + String(rScore) + " ");
+    previousMillis = currentMillis;
+    delay(3000);
+    lcd.setCursor(0, 0);
+    lcd.print("Rotate board and");
+    lcd.setCursor(0, 1);
+    lcd.print("press any key...");
+    while (!(button11.flagClick || button12.flagClick || button13.flagClick || button14.flagClick || button15.flagClick ||
+    button21.flagClick || button22.flagClick || button23.flagClick || button24.flagClick || button25.flagClick) || currentMillis - previousMillis >= 30000 )
+    {
+    currentMillis = millis();
+    }
+    game = GAME_START;
+    currentMillis = 0;
+    previousMillis = 0;
+    start1stTimeMillis = 0;
+    start2ndTimeMillis = 0;
+    ballkick = false;
+}
+
 void loop()
 {
     // put your main code here, to run repeatedly:
+    dice = random (-3,4); // 7гранный кубик :) (от -3 до +3)
     switch (game)
     {
         case GAME_START:
             start_game();
-            /*#define GAME_SIDE_OUT 2
-            #define GAME_END_OUT 3
-            #define GAME_OFFSIDE 4
-            #define GAME_GOAL 9
-            */
             break;
         case GAME_PERFORMED:
             in_game();
-            // выполняется когда  var равно 2
             break;
         case GAME_SIDE_OUT:
             side();
@@ -968,6 +1323,12 @@ void loop()
             break;
         case GAME_OFFSIDE:
             offside();
+            break;
+        case GAME_HALFEND:
+            nexttime();
+            break;
+        case GAME_STOP:
+            stop_game();
             break;
         default:
         // выполняется, если не выбрана ни одна альтернатива
