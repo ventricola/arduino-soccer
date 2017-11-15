@@ -160,7 +160,7 @@ boolean Button::scanState()
             _buttonCount = 0; // сброс счетчика подтверждений
             _stateChanged = true;
             totalCount++;
-            pressRate = totalCount/millis() * 1000;
+            pressRate = totalCount/ (millis() / 1000);
             if (flagPress == true)
                 flagClick = true; // признак клика кнопки
         }
@@ -201,7 +201,7 @@ TMRpcm audio; // create an object for use in this sketch
 
 LiquidCrystal_I2C lcd(LCD_ADDR, 16, 2); // set the LCD address to 0x3f for a 16 chars and 2 line display in prototype board
 // LiquidCrystal_I2C lcd(0x27, 16, 2); // set the LCD address to 0x27 for a 16 chars and 2 line display in Proteus
-const char b11 = B11_PIN, b12 = B12_PIN, b13 = B13_PIN, b14 = B14_PIN, b15 = B15_PIN, b21 = B21_PIN, b22 = B22_PIN, b23 = B23_PIN, // buttons
+const PROGMEM char b11 = B11_PIN, b12 = B12_PIN, b13 = B13_PIN, b14 = B14_PIN, b15 = B15_PIN, b21 = B21_PIN, b22 = B22_PIN, b23 = B23_PIN, // buttons
 b24 = B24_PIN, b25 = B25_PIN,
 l101 = L101_PIN, l102 = L102_PIN, l103 = L103_PIN, l104 = L104_PIN, l105 = L105_PIN, l106 = L106_PIN, l107 = L107_PIN, // leds
 l108 = L108_PIN, l109 = L109_PIN, l110 = L110_PIN, l111 = L111_PIN, l112 = L112_PIN, l201 = L201_PIN, l202 = L202_PIN,
@@ -227,7 +227,7 @@ l3b = L3B_PIN, l4r = L4R_PIN, l4g = L4G_PIN, l4b = L4B_PIN;
 // 11   {     {-1, 0},    {-1, 0},    {l209, -1}, {-1, 0},    {-1, 0}     }
 // REDS
 // };
-const char field[12][5][2] =
+const PROGMEM char field[12][5][2] =
 {
     {
         {
@@ -439,6 +439,7 @@ int8_t game = GAME_START, rScore = 0, gScore = 0, dice = 0,
 x = -1, y = -1, vector = 0, xPrev = -1, yPrev = -1, vectorPrev = 0, vector1st = 0;
 unsigned long currentMillis = 0, previousMillis = 0, start1stTimeMillis = 0, start2ndTimeMillis = 0;
 boolean ballkick = false, debug = true, sdEnable = false, tryCatch = false;
+String logFileName;
 
 #ifdef ENABLE_SD
 File logFile;
@@ -457,9 +458,11 @@ void log(String _str, String _lcdStr)
         {
 
 #ifdef ENABLE_SD
+            logFile = SD.open(logFileName, FILE_WRITE);
             logFile.print(millis() + "    ");
             logFile.println(_str);
-            logFile.flush();
+            // logFile.flush();
+            logFile.close();
 #endif
 
         }
@@ -475,9 +478,11 @@ void log(String _str)
         {
 
 #ifdef ENABLE_SD
+            logFile = SD.open(logFileName, FILE_WRITE);
             logFile.print(millis() + "    ");
             logFile.println(_str);
-            logFile.flush();
+            // logFile.flush();
+            logFile.close();
 #endif
 
         }
@@ -522,7 +527,6 @@ void timerInterupt()
 
 void setup()
 {
-    String _filename;
     unsigned long _rand;
     // put your setup code here, to run once:
     MsTimer2::set(2, timerInterupt); // задаем период прерывания по таймеру 2 мс
@@ -566,17 +570,18 @@ void setup()
     while (1)
     {
         _rand = (unsigned long) random(999999);
-        _filename = String(_rand, HEX) + ".txt";
-        if (SD.exists(_filename))
+        logFileName = String(_rand, HEX) + ".txt";
+        if (SD.exists(logFileName))
         {
             // если файл с именем существует, то ...
-            log("File " + _filename + " exists! New turn!", _filename);
+            log("File " + logFileName + " exists! New turn!", logFileName);
         }
         else
         {
             // иначе ...
-            log("File " + _filename + " doesn't exist! Create new!", "fn " + _filename);
-            logFile = SD.open(_filename, FILE_WRITE);
+            log("File " + logFileName + " doesn't exist! Create new!", "fn " + logFileName);
+            logFile = SD.open(logFileName, FILE_WRITE);
+            logFile.close();
             sdEnable = true;
             delay(1000);
             break;
@@ -830,6 +835,7 @@ void start_game()
 void in_game()
 {
     char _direction = 0;
+    float _fortune = 0;
     lcd.setCursor(0, 1);
     lcd.print("Gs: " + String(gScore) + "   Rs: " + String(rScore) + " ");
     currentMillis = millis();
@@ -990,9 +996,11 @@ void in_game()
     {
         if (button11.flagClick == 1)
         {
-            if (random(10) + dice - round((currentMillis - previousMillis) /150 - 1) - round(0.5/(button11.pressRate + 0.01)) > 4)
+            _fortune = random(10) + dice - round((currentMillis - previousMillis) /150 - 2) - round(0.5 * button11.pressRate);
+            log("Greens fortune at " + String(currentMillis) + " after " + String(previousMillis) + " is " + String(_fortune));
+            if ( _fortune > 4)
             {
-                // 50% + (-30% - +30% кости) - (600..0/150-1) чем позже перехват, тем ниже вероятность успеха на -10% - 30%
+                // 50% + (-30% - +30% кости) - (600..0/150-1) чем позже перехват, тем ниже вероятность успеха на -20% - 20%
                 // высокий pressRate отнимает до 40%
                 reset_buttons_flagClick();
                 ballkick = false;
@@ -1007,7 +1015,9 @@ void in_game()
     {
         if (button21.flagClick == 1)
         {
-            if (random(10) + dice - round((currentMillis - previousMillis) /150 - 1) - round(0.5/(button21.pressRate + 0.01)) > 4)
+            _fortune = random(10) + dice - round((currentMillis - previousMillis) /150 - 2) - round(0.5 * button21.pressRate);
+            log("Reds fortune at " + String(currentMillis) + " after " + String(previousMillis) + " is " + String(_fortune));
+            if (_fortune > 4)
             // 50% + (-30% - +30% кости)
             {
                 reset_buttons_flagClick();
