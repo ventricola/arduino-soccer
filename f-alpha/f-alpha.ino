@@ -98,9 +98,7 @@ class Button
         Button(byte pin, byte timeButton); // конструктор
         boolean flagPress; // признак кнопка в нажатом состоянии
         boolean flagClick; // признак нажатия кнопки (клик)
-        boolean scanState(); // метод проверки состояние сигнала
-        void filterAvarage(); // метод фильтрации сигнала по среднему значению
-        void setPinTime(byte pin, byte timeButton); // метод установки номера вывода и времени (числа) подтверждения
+        boolean scanState(); // метод проверки состояния кнопки с фильтрацией дребезга
         uint16_t totalCount = 0; // общее количество изменений состояния
         float pressRate = 0; // частота изменений состояния
     private:
@@ -108,33 +106,6 @@ class Button
         byte _timeButton; // время подтверждения состояния кнопки
         byte _pin; // номер вывода кнопки
 };
-
-// метод фильтрации сигнала по среднему значению
-// при сигнале низкого уровня flagPress= true
-// при сигнале высокого уровня flagPress= false
-// при изменении состояния с высокого на низкий flagClick= true
-void Button::filterAvarage()
-{
-    if (flagPress != digitalRead(_pin))
-    {
-        // состояние кнопки осталось прежним
-        if (_buttonCount != 0)
-            _buttonCount--; // счетчик подтверждений - 1 с ограничением на 0
-    }
-    else
-    {
-        // состояние кнопки изменилось
-        _buttonCount++; // +1 к счетчику подтверждений
-        if (_buttonCount >= _timeButton)
-        {
-            // состояние сигнала достигло порога _timeButton
-            flagPress = !flagPress; // инверсия признака состояния
-            _buttonCount = 0; // сброс счетчика подтверждений
-            if (flagPress == true)
-                flagClick = true; // признак клика кнопки
-        }
-    }
-}
 
 // метод проверки состояния кнопки
 // при нажатой кнопке flagPress= true
@@ -166,14 +137,6 @@ boolean Button::scanState()
         }
     }
     return(_stateChanged);
-}
-
-// метод установки номера вывода и времени подтверждения
-void Button::setPinTime(byte pin, byte timeButton)
-{
-    _pin = pin;
-    _timeButton = timeButton;
-    pinMode(_pin, INPUT_PULLUP); // определяем вывод кнопки как вход
 }
 
 // конструктор класса Button
