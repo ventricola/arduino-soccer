@@ -3,8 +3,8 @@
 #include <MsTimer2.h>
 // #define ENABLE_SD
 // #ifdef ENABLE_PCM
-#define LCD_ADDR 0x3f // set the LCD address to 0x3f for a 16 chars and 2 line display in prototype board
-// #define LCD_ADDR 0x27 // set the LCD address to 0x27 for a 16 chars and 2 line display in Proteus
+// #define LCD_ADDR 0x3f // set the LCD address to 0x3f for a 16 chars and 2 line display in prototype board
+#define LCD_ADDR 0x27 // set the LCD address to 0x27 for a 16 chars and 2 line display in Proteus
 
 #ifdef ENABLE_SD
 #include <SD.h> // need to include the SD library
@@ -101,8 +101,8 @@ class Button
         boolean scanState(); // метод проверки состояние сигнала
         void filterAvarage(); // метод фильтрации сигнала по среднему значению
         void setPinTime(byte pin, byte timeButton); // метод установки номера вывода и времени (числа) подтверждения
-        uint16_t totalCount = 0;
-        float pressRate = 0;
+        uint16_t totalCount = 0; // общее количество изменений состояния
+        float pressRate = 0; // частота изменений состояния
     private:
         byte _buttonCount; // счетчик подтверждений состояния кнопки
         byte _timeButton; // время подтверждения состояния кнопки
@@ -440,6 +440,7 @@ x = -1, y = -1, vector = 0, xPrev = -1, yPrev = -1, vectorPrev = 0, vector1st = 
 unsigned long currentMillis = 0, previousMillis = 0, start1stTimeMillis = 0, start2ndTimeMillis = 0;
 boolean ballkick = false, debug = true, sdEnable = false, tryCatch = false;
 String logFileName;
+float gFortune = 0, rFortune = 0;
 
 #ifdef ENABLE_SD
 File logFile;
@@ -661,6 +662,7 @@ char getRGBPin(char _lRGB, int _vector)
 void newxy(int _x, int _y, int _vector)
 {
     boolean _goal = false;
+    float _goalFortune = 0;
     xPrev = x;
     yPrev = y;
     vectorPrev = vector;
@@ -671,8 +673,17 @@ void newxy(int _x, int _y, int _vector)
     log("Newxy on " + String(x) + "," + String(y) + "," + String(vector) + " at " + String(currentMillis) + " after " + String(previousMillis));
     previousMillis = currentMillis;
     reset_buttons_flagClick();
-    if (y == 2 && (x == 0 || x == 11) && random(10) + dice > 6)
-    // 30% + (-30% - +30% кости)
+    if (vectorPrev == 1)
+    {
+        _goalFortune = gFortune;
+    }
+    else
+        if (vectorPrev == -1)
+        {
+            _goalFortune = rFortune;
+        }
+    if (y == 2 && (x == 0 || x == 11) && random(10) + dice + _goalFortune > 6)
+    // 30% + (-30% - +30% кости) + бонус за командную игру
     {
         _goal = true;
     }
@@ -721,6 +732,17 @@ void start_game()
     lcd.init();
     reset_buttons_flagClick;
     pcm("ole.wav");
+    log("Start drawing at " + String(currentMillis) + " after " + String(previousMillis));
+    lcd.setCursor(0, 0);
+    lcd.print("Drawing begins! ");
+    lcd.setCursor(0, 1);
+    lcd.print("Press any key...");
+    reset_buttons_flagClick();
+    while (!(button11.flagClick || button12.flagClick || button13.flagClick || button14.flagClick || button15.flagClick ||
+    button21.flagClick || button22.flagClick || button23.flagClick || button24.flagClick || button25.flagClick) || currentMillis - previousMillis >= 30000)
+    {
+    }
+    reset_buttons_flagClick();
     log("Who is faster cowboy?! Press catch button after the beep!");
     lcd.setCursor(0, 0);
     lcd.print("Who is faster?! ");
@@ -820,7 +842,7 @@ void start_game()
                 if (button21.flagClick == 1)
                 {
                     lcd.setCursor(0, 0);
-                    lcd.print("Reds win!   ");
+                    lcd.print("Reds win!       ");
                     log("Reds win at " + String(currentMillis) + " after " + String(previousMillis));
                     game = GAME_PERFORMED;
                     newxy(6, 2, REDS);
@@ -837,7 +859,7 @@ void in_game()
     char _direction = 0;
     float _fortune = 0;
     lcd.setCursor(0, 1);
-    lcd.print("Gs: " + String(gScore) + "   Rs: " + String(rScore) + " ");
+    lcd.print("Gs: " + String(gScore) + "   Rs: " + String(rScore) + "   ");
     currentMillis = millis();
     if (start1stTimeMillis > 0 && (currentMillis - start1stTimeMillis) >= TIME_TIMEOUT && start2ndTimeMillis == 0)
     // конец 1го тайма
@@ -996,9 +1018,19 @@ void in_game()
     {
         if (button11.flagClick == 1)
         {
-            _fortune = random(10) + dice - round((currentMillis - previousMillis) /150 - 2) - round(0.5 * button11.pressRate);
+            if (vectorPrev == 1 && vector == 1 && y != yPrev)
+            {
+                gFortune++;
+            }
+            else
+                if (vectorPrev == 1 && vector == 1)
+                {
+                    gFortune = gFortune + 0.5;
+                }
+            _fortune = random(10) + dice + gFortune - round((currentMillis - previousMillis) /150 - 2) - round(0.5 * button11.pressRate);
             log("Greens fortune at " + String(currentMillis) + " after " + String(previousMillis) + " is " + String(_fortune));
-            if ( _fortune > 4)
+            log("dice = " + String(dice) + ", gFortune = " + String(rFortune));
+            if (_fortune > 4)
             {
                 // 50% + (-30% - +30% кости) - (600..0/150-1) чем позже перехват, тем ниже вероятность успеха на -20% - 20%
                 // высокий pressRate отнимает до 40%
@@ -1015,8 +1047,18 @@ void in_game()
     {
         if (button21.flagClick == 1)
         {
-            _fortune = random(10) + dice - round((currentMillis - previousMillis) /150 - 2) - round(0.5 * button21.pressRate);
+            if (vectorPrev == -1 && vector == -1 && y != yPrev)
+            {
+                rFortune++;
+            }
+            else
+                if (vectorPrev == -1 && vector == -1)
+                {
+                    rFortune = rFortune + 0.5;
+                }
+            _fortune = random(10) + dice + rFortune - round((currentMillis - previousMillis) /150 - 2) - round(0.5 * button21.pressRate);
             log("Reds fortune at " + String(currentMillis) + " after " + String(previousMillis) + " is " + String(_fortune));
+            log("dice = " + String(dice) + ", rFortune = " + String(rFortune));
             if (_fortune > 4)
             // 50% + (-30% - +30% кости)
             {
@@ -1043,6 +1085,8 @@ void goal()
 
     reset_buttons_flagClick();
     ballkick = false;
+    gFortune = 0;
+    rFortune = 0;
     game = GAME_PERFORMED;
     lcd.setCursor(0, 0);
     if (x == 0)
@@ -1150,6 +1194,8 @@ void goalline()
     previousMillis = currentMillis;
     reset_buttons_flagClick();
     ballkick = false;
+    gFortune = 0;
+    rFortune = 0;
     game = GAME_PERFORMED;
     if (vector == GREENS)
     // если зеленые выбили мяч, но только назад или вперед поля
@@ -1209,6 +1255,8 @@ void offside()
     previousMillis = currentMillis;
     reset_buttons_flagClick();
     ballkick = false;
+    gFortune = 0;
+    rFortune = 0;
     game = GAME_PERFORMED;
     if (vector == GREENS)
     {
@@ -1239,6 +1287,8 @@ void nexttime()
     lcd.print("Press any key...");
     reset_buttons_flagClick();
     ballkick = false;
+    gFortune = 0;
+    rFortune = 0;
     game = GAME_PERFORMED;
     if (vector1st != GREENS)
     {
@@ -1278,6 +1328,8 @@ void stop_game()
 
     reset_buttons_flagClick();
     ballkick = false;
+    gFortune = 0;
+    rFortune = 0;
     log("Game ends at " + String(currentMillis) + " after " + String(previousMillis));
     if (gScore > rScore)
     {
