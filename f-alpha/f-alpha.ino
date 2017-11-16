@@ -3,8 +3,8 @@
 #include <MsTimer2.h>
 // #define ENABLE_SD
 // #ifdef ENABLE_PCM
-// #define LCD_ADDR 0x3f // set the LCD address to 0x3f for a 16 chars and 2 line display in prototype board
-#define LCD_ADDR 0x27 // set the LCD address to 0x27 for a 16 chars and 2 line display in Proteus
+#define LCD_ADDR 0x3f // set the LCD address to 0x3f for a 16 chars and 2 line display in prototype board
+//#define LCD_ADDR 0x27 // set the LCD address to 0x27 for a 16 chars and 2 line display in Proteus
 
 #ifdef ENABLE_SD
 #include <SD.h> // need to include the SD library
@@ -164,8 +164,8 @@ TMRpcm audio; // create an object for use in this sketch
 
 LiquidCrystal_I2C lcd(LCD_ADDR, 16, 2); // set the LCD address to 0x3f for a 16 chars and 2 line display in prototype board
 // LiquidCrystal_I2C lcd(0x27, 16, 2); // set the LCD address to 0x27 for a 16 chars and 2 line display in Proteus
-const PROGMEM char b11 = B11_PIN, b12 = B12_PIN, b13 = B13_PIN, b14 = B14_PIN, b15 = B15_PIN, b21 = B21_PIN, b22 = B22_PIN, b23 = B23_PIN, // buttons
-b24 = B24_PIN, b25 = B25_PIN,
+const char b11 = B11_PIN, b12 = B12_PIN, b13 = B13_PIN, b14 = B14_PIN, b15 = B15_PIN, // buttons
+b21 = B21_PIN, b22 = B22_PIN, b23 = B23_PIN, b24 = B24_PIN, b25 = B25_PIN,
 l101 = L101_PIN, l102 = L102_PIN, l103 = L103_PIN, l104 = L104_PIN, l105 = L105_PIN, l106 = L106_PIN, l107 = L107_PIN, // leds
 l108 = L108_PIN, l109 = L109_PIN, l110 = L110_PIN, l111 = L111_PIN, l112 = L112_PIN, l201 = L201_PIN, l202 = L202_PIN,
 l203 = L203_PIN, l204 = L204_PIN, l205 = L205_PIN, l206 = L206_PIN, l207 = L207_PIN, l208 = L208_PIN, l209 = L209_PIN,
@@ -190,7 +190,7 @@ l3b = L3B_PIN, l4r = L4R_PIN, l4g = L4G_PIN, l4b = L4B_PIN;
 // 11   {     {-1, 0},    {-1, 0},    {l209, -1}, {-1, 0},    {-1, 0}     }
 // REDS
 // };
-const PROGMEM char field[12][5][2] =
+const char field[12][5][2] =
 {
     {
         {
@@ -411,6 +411,7 @@ File logFile;
 
 void log(String _str, String _lcdStr)
 {
+    MsTimer2::stop();
     if (debug)
     {
         Serial.println(_str);
@@ -431,10 +432,12 @@ void log(String _str, String _lcdStr)
 
         }
     }
+    MsTimer2::start();
 }
 
 void log(String _str)
 {
+    MsTimer2::stop();
     if (debug)
     {
         Serial.println(_str);
@@ -451,6 +454,7 @@ void log(String _str)
 
         }
     }
+    MsTimer2::start();
 }
 
 void pcm(char * _filename)
@@ -467,26 +471,30 @@ void pcm(char * _filename)
 
 void timerInterupt()
 {
+    String _log="";
+    long _currentMillis;
+    _currentMillis=millis();
     if (button11.scanState())
-        log("button11 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis) + ", pressRate is " + String(button11.pressRate)); // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + String(_currentMillis) + ",b11," + String(button11.flagPress) + "," + String(button11.pressRate) + ",.\n"; // вызов метода ожидания стабильного состояния для кнопки
     if (button12.scanState())
-        log("button12 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis) + ", pressRate is " + String(button12.pressRate));
+        _log = _log + String(_currentMillis) + ",b12," + String(button12.flagPress) + "," + String(button12.pressRate) + ",.\n"; // вызов метода ожидания стабильного состояния для кнопки
     if (button13.scanState())
-        log("button13 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis) + ", pressRate is " + String(button13.pressRate));
+        _log = _log + String(_currentMillis) + ",b13," + String(button13.flagPress) + "," + String(button13.pressRate) + ",.\n"; // вызов метода ожидания стабильного состояния для кнопки
     if (button14.scanState())
-        log("button14 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis) + ", pressRate is " + String(button14.pressRate));
+        _log = _log + String(_currentMillis) + ",b14," + String(button14.flagPress) + "," + String(button14.pressRate) + ",.\n"; // вызов метода ожидания стабильного состояния для кнопки
     if (button15.scanState())
-        log("button15 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis) + ", pressRate is " + String(button15.pressRate));
+        _log = _log + String(_currentMillis) + ",b15," + String(button15.flagPress) + "," + String(button15.pressRate) + ",.\n"; // вызов метода ожидания стабильного состояния для кнопки
     if (button21.scanState())
-        log("button21 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis) + ", pressRate is " + String(button21.pressRate));
+        _log = _log + String(_currentMillis) + ",b21," + String(button21.flagPress) + "," + String(button21.pressRate) + ",.\n"; // вызов метода ожидания стабильного состояния для кнопки
     if (button22.scanState())
-        log("button22 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis) + ", pressRate is " + String(button22.pressRate));
+        _log = _log + String(_currentMillis) + ",b22," + String(button22.flagPress) + "," + String(button22.pressRate) + ",.\n"; // вызов метода ожидания стабильного состояния для кнопки
     if (button23.scanState())
-        log("button23 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis) + ", pressRate is " + String(button23.pressRate));
+        _log = _log + String(_currentMillis) + ",b23," + String(button23.flagPress) + "," + String(button23.pressRate) + ",.\n"; // вызов метода ожидания стабильного состояния для кнопки
     if (button24.scanState())
-        log("button24 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis) + ", pressRate is " + String(button24.pressRate));
+        _log = _log + String(_currentMillis) + ",b24," + String(button24.flagPress) + "," + String(button24.pressRate) + ",.\n"; // вызов метода ожидания стабильного состояния для кнопки
     if (button25.scanState())
-        log("button25 stateChanged" + String(" at ") + String(currentMillis) + " after " + String(previousMillis) + ", pressRate is " + String(button25.pressRate));
+        _log = _log + String(_currentMillis) + ",b25," + String(button25.flagPress) + "," + String(button25.pressRate) + ",.\n"; // вызов метода ожидания стабильного состояния для кнопки
+    if (_log.length()>1) log(_log);
 }
 
 void setup()
@@ -638,12 +646,12 @@ void newxy(int _x, int _y, int _vector)
     reset_buttons_flagClick();
     if (vectorPrev == 1)
     {
-        _goalFortune = gFortune;
+        _goalFortune = float(gFortune);
     }
     else
         if (vectorPrev == -1)
         {
-            _goalFortune = rFortune;
+            _goalFortune = float(rFortune);
         }
     if (y == 2 && (x == 0 || x == 11) && random(10) + dice + _goalFortune > 6)
     // 30% + (-30% - +30% кости) + бонус за командную игру
@@ -990,7 +998,7 @@ void in_game()
                 {
                     gFortune = gFortune + 0.5;
                 }
-            _fortune = random(10) + dice + gFortune - round((currentMillis - previousMillis) /150 - 2) - round(0.5 * button11.pressRate);
+            _fortune = float(random(10) + dice + gFortune - round((currentMillis - previousMillis) /150 - 2) - round(0.5 * button11.pressRate));
             log("Greens fortune at " + String(currentMillis) + " after " + String(previousMillis) + " is " + String(_fortune));
             log("dice = " + String(dice) + ", gFortune = " + String(rFortune));
             if (_fortune > 4)
@@ -1019,7 +1027,7 @@ void in_game()
                 {
                     rFortune = rFortune + 0.5;
                 }
-            _fortune = random(10) + dice + rFortune - round((currentMillis - previousMillis) /150 - 2) - round(0.5 * button21.pressRate);
+            _fortune = float(random(10) + dice + rFortune - round((currentMillis - previousMillis) /150 - 2) - round(0.5 * button21.pressRate));
             log("Reds fortune at " + String(currentMillis) + " after " + String(previousMillis) + " is " + String(_fortune));
             log("dice = " + String(dice) + ", rFortune = " + String(rFortune));
             if (_fortune > 4)
