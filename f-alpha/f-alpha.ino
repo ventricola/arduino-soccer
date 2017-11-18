@@ -490,25 +490,25 @@ void timerInterupt()
     long _currentMillis;
     _currentMillis = millis();
     if (button11.scanState())
-        _log = _log + String(_currentMillis) + ",b11," + String(button11.flagPress) + "," + String(button11.pressRateLastMinute) + ",.\n\r"; // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + String(_currentMillis) + ",b11," + String(button11.flagPress) + "," + String(button11.pressRateLastMinute) + ",.\r\n"; // вызов метода ожидания стабильного состояния для кнопки
     if (button12.scanState())
-        _log = _log + String(_currentMillis) + ",b12," + String(button12.flagPress) + "," + String(button12.pressRateLastMinute) + ",.\n\r"; // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + String(_currentMillis) + ",b12," + String(button12.flagPress) + "," + String(button12.pressRateLastMinute) + ",.\r\n"; // вызов метода ожидания стабильного состояния для кнопки
     if (button13.scanState())
-        _log = _log + String(_currentMillis) + ",b13," + String(button13.flagPress) + "," + String(button13.pressRateLastMinute) + ",.\n\r"; // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + String(_currentMillis) + ",b13," + String(button13.flagPress) + "," + String(button13.pressRateLastMinute) + ",.\r\n"; // вызов метода ожидания стабильного состояния для кнопки
     if (button14.scanState())
-        _log = _log + String(_currentMillis) + ",b14," + String(button14.flagPress) + "," + String(button14.pressRateLastMinute) + ",.\n\r"; // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + String(_currentMillis) + ",b14," + String(button14.flagPress) + "," + String(button14.pressRateLastMinute) + ",.\r\n"; // вызов метода ожидания стабильного состояния для кнопки
     if (button15.scanState())
-        _log = _log + String(_currentMillis) + ",b15," + String(button15.flagPress) + "," + String(button15.pressRateLastMinute) + ",.\n\r"; // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + String(_currentMillis) + ",b15," + String(button15.flagPress) + "," + String(button15.pressRateLastMinute) + ",.\r\n"; // вызов метода ожидания стабильного состояния для кнопки
     if (button21.scanState())
-        _log = _log + String(_currentMillis) + ",b21," + String(button21.flagPress) + "," + String(button21.pressRateLastMinute) + ",.\n\r"; // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + String(_currentMillis) + ",b21," + String(button21.flagPress) + "," + String(button21.pressRateLastMinute) + ",.\r\n"; // вызов метода ожидания стабильного состояния для кнопки
     if (button22.scanState())
-        _log = _log + String(_currentMillis) + ",b22," + String(button22.flagPress) + "," + String(button22.pressRateLastMinute) + ",.\n\r"; // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + String(_currentMillis) + ",b22," + String(button22.flagPress) + "," + String(button22.pressRateLastMinute) + ",.\r\n"; // вызов метода ожидания стабильного состояния для кнопки
     if (button23.scanState())
-        _log = _log + String(_currentMillis) + ",b23," + String(button23.flagPress) + "," + String(button23.pressRateLastMinute) + ",.\n\r"; // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + String(_currentMillis) + ",b23," + String(button23.flagPress) + "," + String(button23.pressRateLastMinute) + ",.\r\n"; // вызов метода ожидания стабильного состояния для кнопки
     if (button24.scanState())
-        _log = _log + String(_currentMillis) + ",b24," + String(button24.flagPress) + "," + String(button24.pressRateLastMinute) + ",.\n\r"; // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + String(_currentMillis) + ",b24," + String(button24.flagPress) + "," + String(button24.pressRateLastMinute) + ",.\r\n"; // вызов метода ожидания стабильного состояния для кнопки
     if (button25.scanState())
-        _log = _log + String(_currentMillis) + ",b25," + String(button25.flagPress) + "," + String(button25.pressRateLastMinute) + ",.\n\r"; // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + String(_currentMillis) + ",b25," + String(button25.flagPress) + "," + String(button25.pressRateLastMinute) + ",.\r\n"; // вызов метода ожидания стабильного состояния для кнопки
     if (_log.length() > 1)
         log(_log);
 }
