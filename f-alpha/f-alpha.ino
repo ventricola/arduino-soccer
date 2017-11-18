@@ -3,9 +3,9 @@
 #include <MsTimer2.h>
 // #include <avr/pgmspace.h>
 // #define ENABLE_SD
-// #ifdef ENABLE_PCM
+// #define ENABLE_PCM
 #define LCD_ADDR 0x3f // set the LCD address to 0x3f for a 16 chars and 2 line display in prototype board
-//#define LCD_ADDR 0x27 // set the LCD address to 0x27 for a 16 chars and 2 line display in Proteus
+// #define LCD_ADDR 0x27 // set the LCD address to 0x27 for a 16 chars and 2 line display in Proteus
 
 #ifdef ENABLE_SD
 #include <SD.h> // need to include the SD library
@@ -101,11 +101,14 @@ class Button
         boolean flagClick; // признак нажатия кнопки (клик)
         boolean scanState(); // метод проверки состояния кнопки с фильтрацией дребезга
         uint16_t totalCount = 0; // общее количество изменений состояния
-        float pressRate = 0; // частота изменений состояния
+        uint16_t minuteCount = 0; // количество изменений состояния  за минуту
+        float pressRate = 0.0; // частота изменений состояния
+        float pressRateLastMinute = 0.0; // частота изменений состояния за минуту
     private:
-        byte _buttonCount; // счетчик подтверждений состояния кнопки
-        byte _timeButton; // время подтверждения состояния кнопки
-        byte _pin; // номер вывода кнопки
+        uint8_t _buttonCount; // счетчик подтверждений состояния кнопки
+        uint8_t _timeButton; // время подтверждения состояния кнопки
+        uint8_t _pin; // номер вывода кнопки
+        uint32_t _stateChangedMillis = 0;
 };
 
 // метод проверки состояния кнопки
@@ -115,6 +118,8 @@ class Button
 boolean Button::scanState()
 {
     boolean _stateChanged = false;
+    uint32_t _currentMillis;
+    _currentMillis = millis();
     if (flagPress != digitalRead(_pin))
     {
         // состояние кнопки осталось прежним
@@ -131,8 +136,13 @@ boolean Button::scanState()
             flagPress = !flagPress; // инверсия признака состояния
             _buttonCount = 0; // сброс счетчика подтверждений
             _stateChanged = true;
+            if (_currentMillis % 60000 < _stateChangedMillis % 60000)
+                minuteCount = 0;
+            _stateChangedMillis = _currentMillis;
             totalCount++;
-            pressRate = totalCount/ (millis() / 1000);
+            minuteCount++;
+            pressRate = (float) totalCount / ((float) (_currentMillis) / 1000.0);
+            pressRateLastMinute = (float) minuteCount / ((float) (_currentMillis % 60000) / 1000.0);
             if (flagPress == true)
                 flagClick = true; // признак клика кнопки
         }
@@ -148,16 +158,16 @@ Button::Button(byte pin, byte timeButton)
     pinMode(_pin, INPUT_PULLUP); // определяем вывод кнопки как вход
 }
 
-volatile Button button11(B11_PIN, 15);
-volatile Button button12(B12_PIN, 15);
-volatile Button button13(B13_PIN, 15);
-volatile Button button14(B14_PIN, 15);
-volatile Button button15(B15_PIN, 15);
-volatile Button button21(B21_PIN, 15);
-volatile Button button22(B22_PIN, 15);
-volatile Button button23(B23_PIN, 15);
-volatile Button button24(B24_PIN, 15);
-volatile Button button25(B25_PIN, 15);
+volatile Button button11(B11_PIN, 3); // 3*10 (30) ms
+volatile Button button12(B12_PIN, 3);
+volatile Button button13(B13_PIN, 3);
+volatile Button button14(B14_PIN, 3);
+volatile Button button15(B15_PIN, 3);
+volatile Button button21(B21_PIN, 3);
+volatile Button button22(B22_PIN, 3);
+volatile Button button23(B23_PIN, 3);
+volatile Button button24(B24_PIN, 3);
+volatile Button button25(B25_PIN, 3);
 
 #ifdef ENABLE_PCM
 TMRpcm audio; // create an object for use in this sketch
@@ -404,7 +414,7 @@ x = -1, y = -1, vector = 0, xPrev = -1, yPrev = -1, vectorPrev = 0, vector1st = 
 unsigned long currentMillis = 0, previousMillis = 0, start1stTimeMillis = 0, start2ndTimeMillis = 0;
 boolean ballkick = false, debug = true, sdEnable = false, tryCatch = false;
 String logFileName;
-float gFortune = 0, rFortune = 0;
+float gFortune = 0.0, rFortune = 0.0;
 
 #ifdef ENABLE_SD
 File logFile;
@@ -460,7 +470,7 @@ void log(String _str)
 
 void pcm(char * _filename, word _duration)
 {
-    if (!digitalRead(DEBUG2_PIN))
+    if (digitalRead(DEBUG2_PIN))
     {
 
 #ifdef ENABLE_PCM
@@ -480,25 +490,25 @@ void timerInterupt()
     long _currentMillis;
     _currentMillis = millis();
     if (button11.scanState())
-        _log = _log + String(_currentMillis) + ",b11," + String(button11.flagPress) + "," + String(button11.pressRate) + ",.\n\r"; // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + String(_currentMillis) + ",b11," + String(button11.flagPress) + "," + String(button11.pressRateLastMinute) + ",.\n\r"; // вызов метода ожидания стабильного состояния для кнопки
     if (button12.scanState())
-        _log = _log + String(_currentMillis) + ",b12," + String(button12.flagPress) + "," + String(button12.pressRate) + ",.\n\r"; // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + String(_currentMillis) + ",b12," + String(button12.flagPress) + "," + String(button12.pressRateLastMinute) + ",.\n\r"; // вызов метода ожидания стабильного состояния для кнопки
     if (button13.scanState())
-        _log = _log + String(_currentMillis) + ",b13," + String(button13.flagPress) + "," + String(button13.pressRate) + ",.\n\r"; // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + String(_currentMillis) + ",b13," + String(button13.flagPress) + "," + String(button13.pressRateLastMinute) + ",.\n\r"; // вызов метода ожидания стабильного состояния для кнопки
     if (button14.scanState())
-        _log = _log + String(_currentMillis) + ",b14," + String(button14.flagPress) + "," + String(button14.pressRate) + ",.\n\r"; // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + String(_currentMillis) + ",b14," + String(button14.flagPress) + "," + String(button14.pressRateLastMinute) + ",.\n\r"; // вызов метода ожидания стабильного состояния для кнопки
     if (button15.scanState())
-        _log = _log + String(_currentMillis) + ",b15," + String(button15.flagPress) + "," + String(button15.pressRate) + ",.\n\r"; // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + String(_currentMillis) + ",b15," + String(button15.flagPress) + "," + String(button15.pressRateLastMinute) + ",.\n\r"; // вызов метода ожидания стабильного состояния для кнопки
     if (button21.scanState())
-        _log = _log + String(_currentMillis) + ",b21," + String(button21.flagPress) + "," + String(button21.pressRate) + ",.\n\r"; // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + String(_currentMillis) + ",b21," + String(button21.flagPress) + "," + String(button21.pressRateLastMinute) + ",.\n\r"; // вызов метода ожидания стабильного состояния для кнопки
     if (button22.scanState())
-        _log = _log + String(_currentMillis) + ",b22," + String(button22.flagPress) + "," + String(button22.pressRate) + ",.\n\r"; // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + String(_currentMillis) + ",b22," + String(button22.flagPress) + "," + String(button22.pressRateLastMinute) + ",.\n\r"; // вызов метода ожидания стабильного состояния для кнопки
     if (button23.scanState())
-        _log = _log + String(_currentMillis) + ",b23," + String(button23.flagPress) + "," + String(button23.pressRate) + ",.\n\r"; // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + String(_currentMillis) + ",b23," + String(button23.flagPress) + "," + String(button23.pressRateLastMinute) + ",.\n\r"; // вызов метода ожидания стабильного состояния для кнопки
     if (button24.scanState())
-        _log = _log + String(_currentMillis) + ",b24," + String(button24.flagPress) + "," + String(button24.pressRate) + ",.\n\r"; // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + String(_currentMillis) + ",b24," + String(button24.flagPress) + "," + String(button24.pressRateLastMinute) + ",.\n\r"; // вызов метода ожидания стабильного состояния для кнопки
     if (button25.scanState())
-        _log = _log + String(_currentMillis) + ",b25," + String(button25.flagPress) + "," + String(button25.pressRate) + ",.\n\r"; // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + String(_currentMillis) + ",b25," + String(button25.flagPress) + "," + String(button25.pressRateLastMinute) + ",.\n\r"; // вызов метода ожидания стабильного состояния для кнопки
     if (_log.length() > 1)
         log(_log);
 }
@@ -507,7 +517,7 @@ void setup()
 {
     unsigned long _rand;
     // put your setup code here, to run once:
-    MsTimer2::set(2, timerInterupt); // задаем период прерывания по таймеру 2 мс
+    MsTimer2::set(10, timerInterupt); // задаем период прерывания по таймеру 10 мс
     MsTimer2::start(); // разрешаем прерывание по таймеру
     currentMillis = millis();
     previousMillis = currentMillis;
@@ -640,7 +650,7 @@ char getRGBPin(char _lRGB, int _vector)
 void newxy(int _x, int _y, int _vector)
 {
     boolean _goal = false;
-    float _goalFortune = 0;
+    float _goalFortune = 0.0;
     xPrev = x;
     yPrev = y;
     vectorPrev = vector;
@@ -651,19 +661,22 @@ void newxy(int _x, int _y, int _vector)
     log("Newxy on " + String(x) + "," + String(y) + "," + String(vector) + " at " + String(currentMillis) + " after " + String(previousMillis));
     previousMillis = currentMillis;
     reset_buttons_flagClick();
+    _goalFortune = (float) (random(10) + dice);
     if (vectorPrev == 1)
     {
-        _goalFortune = float(gFortune);
+        _goalFortune = _goalFortune + gFortune;
     }
     else
         if (vectorPrev == -1)
         {
-            _goalFortune = float(rFortune);
+            _goalFortune = _goalFortune + rFortune;
         }
-    if (y == 2 && (x == 0 || x == 11) && random(10) + dice + _goalFortune > 6)
-    // 30% + (-30% - +30% кости) + бонус за командную игру
+    if (y == 2 && (x == 0 || x == 11))
     {
-        _goal = true;
+        if (_goalFortune > 6)
+            _goal = true; // 30% + (-30% - +30% кости) + бонус за командную игру
+        log("Goal fortune at " + String(currentMillis) + " after " + String(previousMillis) + " is " + String(_goalFortune));
+        log("dice = " + String(dice) + ", Fortunes (g,r) = " + String(gFortune) + "," + String(rFortune));
     }
     if (field[x][y][0] != -1)
     // проверка наличия светодиода в новой координате
@@ -828,7 +841,7 @@ void start_game()
 void in_game()
 {
     char _direction = 0;
-    float _fortune = 0;
+    float _fortune = 0.0;
     lcd.setCursor(0, 1);
     lcd.print("Gs: " + String(gScore) + "   Rs: " + String(rScore) + "   ");
     currentMillis = millis();
@@ -858,7 +871,7 @@ void in_game()
             return;
         }
     else
-        if (ballkick && ((currentMillis - previousMillis) >= CATCH_TIMEOUT))
+        if (ballkick && (((currentMillis - previousMillis) >= CATCH_TIMEOUT) || field[x][y][0] == -1))
         // мяч не перехвачен за 0.3-0.5 с
         {
             newxy(x + x - xPrev, y + y - yPrev, vector);
@@ -989,22 +1002,22 @@ void in_game()
     {
         if (button11.flagClick == 1)
         {
-            if (vectorPrev == 1 && vector == 1 && y != yPrev)
+            if (vectorPrev == 1 && vector == 1 && y != yPrev && gFortune < 3)
             {
                 gFortune++;
             }
             else
-                if (vectorPrev == 1 && vector == 1)
+                if (vectorPrev == 1 && vector == 1 && gFortune < 3)
                 {
                     gFortune = gFortune + 0.5;
                 }
-            _fortune = float(random(10) + dice + gFortune - round((currentMillis - previousMillis) / 100 - 2) - round(0.5 * button11.pressRate));
+            _fortune = (float) (random(10) + dice) + gFortune - ((float) (currentMillis - previousMillis) / 100.0 - 2.0) - button11.pressRateLastMinute;
             log("Greens fortune at " + String(currentMillis) + " after " + String(previousMillis) + " is " + String(_fortune));
             log("dice = " + String(dice) + ", gFortune = " + String(gFortune));
             if (_fortune > 4)
             {
                 // 50% + (-30% - +30% кости) - (600..0/150-1) чем позже перехват, тем ниже вероятность успеха на -20% - 20%
-                // высокий pressRate отнимает до 40%
+                // высокий pressRateLastMinute отнимает до 40%
                 reset_buttons_flagClick();
                 ballkick = false;
                 tryCatch = true;
@@ -1018,16 +1031,16 @@ void in_game()
     {
         if (button21.flagClick == 1)
         {
-            if (vectorPrev == -1 && vector == -1 && y != yPrev)
+            if (vectorPrev == -1 && vector == -1 && y != yPrev && rFortune < 3)
             {
                 rFortune++;
             }
             else
-                if (vectorPrev == -1 && vector == -1)
+                if (vectorPrev == -1 && vector == -1 && rFortune < 3)
                 {
                     rFortune = rFortune + 0.5;
                 }
-            _fortune = float(random(10) + dice + rFortune - round((currentMillis - previousMillis) / 100 - 2) - round(0.5 * button21.pressRate));
+            _fortune = (float) (random(10) + dice) + rFortune - ((float) (currentMillis - previousMillis) / 100.0 - 2.0) - button21.pressRateLastMinute;
             log("Reds fortune at " + String(currentMillis) + " after " + String(previousMillis) + " is " + String(_fortune));
             log("dice = " + String(dice) + ", rFortune = " + String(rFortune));
             if (_fortune > 4)
@@ -1049,8 +1062,8 @@ void goal()
     pcm("whistle.wav", 750);
     reset_buttons_flagClick();
     ballkick = false;
-    gFortune = 0;
-    rFortune = 0;
+    gFortune = 0.0;
+    rFortune = 0.0;
     game = GAME_PERFORMED;
     lcd.setCursor(0, 0);
     if (x == 0)
@@ -1160,8 +1173,8 @@ void goalline()
     previousMillis = currentMillis;
     reset_buttons_flagClick();
     ballkick = false;
-    gFortune = 0;
-    rFortune = 0;
+    gFortune = 0.0;
+    rFortune = 0.0;
     game = GAME_PERFORMED;
     if (vector == GREENS)
     // если зеленые выбили мяч, но только назад или вперед поля
@@ -1214,8 +1227,8 @@ void offside()
     previousMillis = currentMillis;
     reset_buttons_flagClick();
     ballkick = false;
-    gFortune = 0;
-    rFortune = 0;
+    gFortune = 0.0;
+    rFortune = 0.0;
     game = GAME_PERFORMED;
     if (vector == GREENS)
     {
@@ -1239,8 +1252,8 @@ void nexttime()
     lcd.print("Press any key...");
     reset_buttons_flagClick();
     ballkick = false;
-    gFortune = 0;
-    rFortune = 0;
+    gFortune = 0.0;
+    rFortune = 0.0;
     game = GAME_PERFORMED;
     if (vector1st != GREENS)
     {
@@ -1266,8 +1279,8 @@ void stop_game()
     pcm("whistle.wav", 1000);
     reset_buttons_flagClick();
     ballkick = false;
-    gFortune = 0;
-    rFortune = 0;
+    gFortune = 0.0;
+    rFortune = 0.0;
     log("Game ends at " + String(currentMillis) + " after " + String(previousMillis));
     if (gScore > rScore)
     {
