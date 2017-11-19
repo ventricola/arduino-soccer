@@ -119,7 +119,6 @@ boolean Button::scanState()
 {
     boolean _stateChanged = false;
     uint32_t _currentMillis;
-    _currentMillis = millis();
     if (flagPress != digitalRead(_pin))
     {
         // состояние кнопки осталось прежним
@@ -127,16 +126,17 @@ boolean Button::scanState()
     }
     else
     {
+        _currentMillis = millis();
         // состояние кнопки изменилось
         _buttonCount++; // +1 к счетчику подтверждений
         if (_buttonCount >= _timeButton)
         {
-            // состояние кнопки не мянялось в течение времени _timeButton
+            // состояние кнопки не мянялось в течение времени _timeButton*период прерывания
             // состояние кнопки стало устойчивым
             flagPress = !flagPress; // инверсия признака состояния
             _buttonCount = 0; // сброс счетчика подтверждений
             _stateChanged = true;
-            if (_currentMillis % 60000 < _stateChangedMillis % 60000)
+            if (((_currentMillis % 60000) < (_stateChangedMillis % 60000)) || ((_currentMillis - _stateChangedMillis) > 60000))
                 minuteCount = 0;
             _stateChangedMillis = _currentMillis;
             totalCount++;
