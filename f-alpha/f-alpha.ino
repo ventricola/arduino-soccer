@@ -118,7 +118,7 @@ class Button
 boolean Button::scanState()
 {
     boolean _stateChanged = false;
-    uint32_t _currentMillis;
+    uint32_t _currentMillis = 0;
     if (flagPress != digitalRead(_pin))
     {
         // состояние кнопки осталось прежним
@@ -136,13 +136,13 @@ boolean Button::scanState()
             flagPress = !flagPress; // инверсия признака состояния
             _buttonCount = 0; // сброс счетчика подтверждений
             _stateChanged = true;
-            if (((_currentMillis % 60000) < (_stateChangedMillis % 60000)) || ((_currentMillis - _stateChangedMillis) > 60000))
+            if ((((uint16_t) (_currentMillis / 1000) % 60) < ((uint16_t) (_stateChangedMillis / 1000) % 60)) || ((_currentMillis - _stateChangedMillis) > 60000))
                 minuteCount = 0;
             _stateChangedMillis = _currentMillis;
             totalCount++;
             minuteCount++;
             pressRate = (float) totalCount / ((float) (_currentMillis) / 1000.0);
-            pressRateLastMinute = (float) minuteCount / ((float) (_currentMillis % 60000) / 1000.0);
+            pressRateLastMinute = (float) minuteCount / ((float) ((uint16_t) (_currentMillis / 1000) % 60));
             if (flagPress == true)
                 flagClick = true; // признак клика кнопки
         }
@@ -425,7 +425,9 @@ void log(String _str, String _lcdStr)
     MsTimer2::stop();
     if (debug)
     {
-        Serial.println(_str);
+        Serial.println(String(millis()) + "," + String(currentMillis) + "," + String(previousMillis) + String(game) + "," +
+        String(x) + "," + String(y) + "," + String(vector) + String(xPrev) + "," + String(yPrev) + "," + String(vectorPrev) + "," +
+        _str);
         lcd.setCursor(0, 0);
         lcd.print("                ");
         lcd.setCursor(0, 0);
@@ -451,7 +453,9 @@ void log(String _str)
     MsTimer2::stop();
     if (debug)
     {
-        Serial.println(_str);
+        Serial.println(String(millis()) + "," + String(currentMillis) + "," + String(previousMillis) + "," + String(game) + "," +
+        String(x) + "," + String(y) + "," + String(vector) + "," + String(xPrev) + "," + String(yPrev) + "," + String(vectorPrev) + "," +
+        _str);
         if (sdEnable)
         {
 
@@ -487,28 +491,27 @@ void pcm(char * _filename, word _duration)
 void timerInterupt()
 {
     String _log = "";
-    long _currentMillis;
-    _currentMillis = millis();
+    uint32_t _currentMillis;
     if (button11.scanState())
-        _log = _log + String(_currentMillis) + ",b11," + String(button11.flagPress) + "," + String(button11.pressRateLastMinute) + ",.\r\n"; // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + "b11," + String(button11.flagPress) + "," + String(button11.pressRateLastMinute) + "," + ",\r\n"; // вызов метода ожидания стабильного состояния для кнопки
     if (button12.scanState())
-        _log = _log + String(_currentMillis) + ",b12," + String(button12.flagPress) + "," + String(button12.pressRateLastMinute) + ",.\r\n"; // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + "b12," + String(button12.flagPress) + "," + String(button12.pressRateLastMinute) + "," + ",\r\n"; // вызов метода ожидания стабильного состояния для кнопки
     if (button13.scanState())
-        _log = _log + String(_currentMillis) + ",b13," + String(button13.flagPress) + "," + String(button13.pressRateLastMinute) + ",.\r\n"; // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + "b13," + String(button13.flagPress) + "," + String(button13.pressRateLastMinute) + "," + ",\r\n"; // вызов метода ожидания стабильного состояния для кнопки
     if (button14.scanState())
-        _log = _log + String(_currentMillis) + ",b14," + String(button14.flagPress) + "," + String(button14.pressRateLastMinute) + ",.\r\n"; // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + "b14," + String(button14.flagPress) + "," + String(button14.pressRateLastMinute) + "," + ",\r\n"; // вызов метода ожидания стабильного состояния для кнопки
     if (button15.scanState())
-        _log = _log + String(_currentMillis) + ",b15," + String(button15.flagPress) + "," + String(button15.pressRateLastMinute) + ",.\r\n"; // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + "b15," + String(button15.flagPress) + "," + String(button15.pressRateLastMinute) + "," + ",\r\n"; // вызов метода ожидания стабильного состояния для кнопки
     if (button21.scanState())
-        _log = _log + String(_currentMillis) + ",b21," + String(button21.flagPress) + "," + String(button21.pressRateLastMinute) + ",.\r\n"; // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + "b21," + String(button21.flagPress) + "," + String(button21.pressRateLastMinute) + "," + ",\r\n"; // вызов метода ожидания стабильного состояния для кнопки
     if (button22.scanState())
-        _log = _log + String(_currentMillis) + ",b22," + String(button22.flagPress) + "," + String(button22.pressRateLastMinute) + ",.\r\n"; // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + "b22," + String(button22.flagPress) + "," + String(button22.pressRateLastMinute) + "," + ",\r\n"; // вызов метода ожидания стабильного состояния для кнопки
     if (button23.scanState())
-        _log = _log + String(_currentMillis) + ",b23," + String(button23.flagPress) + "," + String(button23.pressRateLastMinute) + ",.\r\n"; // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + "b23," + String(button23.flagPress) + "," + String(button23.pressRateLastMinute) + "," + ",\r\n"; // вызов метода ожидания стабильного состояния для кнопки
     if (button24.scanState())
-        _log = _log + String(_currentMillis) + ",b24," + String(button24.flagPress) + "," + String(button24.pressRateLastMinute) + ",.\r\n"; // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + "b24," + String(button24.flagPress) + "," + String(button24.pressRateLastMinute) + "," + ",\r\n"; // вызов метода ожидания стабильного состояния для кнопки
     if (button25.scanState())
-        _log = _log + String(_currentMillis) + ",b25," + String(button25.flagPress) + "," + String(button25.pressRateLastMinute) + ",.\r\n"; // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + "b25," + String(button25.flagPress) + "," + String(button25.pressRateLastMinute) + "," + ",\r\n"; // вызов метода ожидания стабильного состояния для кнопки
     if (_log.length() > 1)
         log(_log);
 }
@@ -552,7 +555,7 @@ void setup()
     if (!SD.begin(SD_SS_PIN))
     {
         // see if the card is present and can be initialized:
-        log(F("SD fail"), F("SD fail"));
+        log(F("SD fail,,,,"), F("SD fail"));
         return; // don't do anything more if not
     }
     // проверяем наличие файла на SD-карте
@@ -563,12 +566,12 @@ void setup()
         if (SD.exists(logFileName))
         {
             // если файл с именем существует, то ...
-            log("File " + logFileName + " exists! New turn!", logFileName);
+            log("File exists! New turn!," + logFileName + ",,,", "!fn " + logFileName);
         }
         else
         {
             // иначе ...
-            log("File " + logFileName + " doesn't exist! Create new!", "fn " + logFileName);
+            log("File doesn't exist! Create new!," + logFileName + ",,,", "fn " + logFileName);
             logFile = SD.open(logFileName, FILE_WRITE);
             logFile.close();
             sdEnable = true;
@@ -658,7 +661,7 @@ void newxy(int _x, int _y, int _vector)
     y = _y;
     vector = _vector;
     currentMillis = millis();
-    log("Newxy on " + String(x) + "," + String(y) + "," + String(vector) + " at " + String(currentMillis) + " after " + String(previousMillis));
+    log("newxy,,,,");
     previousMillis = currentMillis;
     reset_buttons_flagClick();
     _goalFortune = (float) (random(10) + dice);
@@ -675,8 +678,7 @@ void newxy(int _x, int _y, int _vector)
     {
         if (_goalFortune > 6)
             _goal = true; // 30% + (-30% - +30% кости) + бонус за командную игру
-        log("Goal fortune at " + String(currentMillis) + " after " + String(previousMillis) + " is " + String(_goalFortune));
-        log("dice = " + String(dice) + ", Fortunes (g,r) = " + String(gFortune) + "," + String(rFortune));
+        log("goalFortune," + String(_goalFortune) + "," + String(dice) + "," + String(gFortune) + "," + String(rFortune));
     }
     if (field[x][y][0] != -1)
     // проверка наличия светодиода в новой координате
@@ -723,7 +725,7 @@ void start_game()
     lcd.init();
     reset_buttons_flagClick;
     pcm("ole.wav", 3000);
-    log("Start drawing at " + String(currentMillis) + " after " + String(previousMillis));
+    log("drawing,,,,");
     lcd.setCursor(0, 0);
     lcd.print(F("Drawing begins! "));
     lcd.setCursor(0, 1);
@@ -734,7 +736,7 @@ void start_game()
     {
     }
     reset_buttons_flagClick();
-    log(F("Who is faster cowboy?! Press catch button after the beep!"));
+    log(F("keycowboys,,,,"));
     lcd.setCursor(0, 0);
     lcd.print(F("Who is faster?! "));
     lcd.setCursor(0, 1);
@@ -762,7 +764,7 @@ void start_game()
             {
                 lcd.setCursor(0, 0);
                 lcd.print(F("Cross fail!     "));
-                log("Cross falsestart at " + String(currentMillis) + " after " + String(previousMillis));
+                log("crossFalsestart,,,,");
             }
             else
                 if (button21.flagClick == 1)
@@ -771,7 +773,7 @@ void start_game()
                     lcd.print(F("Reds fail!      "));
                     lcd.setCursor(0, 1);
                     lcd.print(F("Greens win!     "));
-                    log("Reds falsestart and greens win at " + String(currentMillis) + " after " + String(previousMillis));
+                    log("redsFalsestart,,,,");
                     game = GAME_PERFORMED;
                     newxy(5, 2, GREENS);
                     vector1st = GREENS;
@@ -783,7 +785,7 @@ void start_game()
                     lcd.print(F("Greens fail!    "));
                     lcd.setCursor(0, 1);
                     lcd.print(F("Reds win!       "));
-                    log("Greens falsestart and reds win at " + String(currentMillis) + " after " + String(previousMillis));
+                    log("greensFalsestart,,,,");
                     game = GAME_PERFORMED;
                     newxy(6, 2, REDS);
                     vector1st = REDS;
@@ -793,7 +795,7 @@ void start_game()
         }
     }
     // tone(SPEAKER_PIN, 3000, 250);
-    log(F("Catch ball!"));
+    log(F("catchBall,,,,"));
     lcd.setCursor(0, 0);
     lcd.print(F("Fast draw!      "));
     lcd.setCursor(0, 1);
@@ -809,7 +811,7 @@ void start_game()
             {
                 lcd.setCursor(0, 0);
                 lcd.print(F("Draw game!Again!"));
-                log("Draw game at " + String(currentMillis) + " after " + String(previousMillis));
+                log("drawgameCowboys,,,,");
                 game = GAME_START;
             }
             else
@@ -817,7 +819,7 @@ void start_game()
                 {
                     lcd.setCursor(0, 0);
                     lcd.print(F("Greens win!     "));
-                    log("Greens win at " + String(currentMillis) + " after " + String(previousMillis));
+                    log("greensWin,,,,");
                     game = GAME_PERFORMED;
                     newxy(5, 2, GREENS);
                     vector1st = GREENS;
@@ -827,7 +829,7 @@ void start_game()
                 {
                     lcd.setCursor(0, 0);
                     lcd.print(F("Reds win!       "));
-                    log("Reds win at " + String(currentMillis) + " after " + String(previousMillis));
+                    log("redsWin,,,,");
                     game = GAME_PERFORMED;
                     newxy(6, 2, REDS);
                     vector1st = REDS;
@@ -1012,8 +1014,7 @@ void in_game()
                     gFortune = gFortune + 0.5;
                 }
             _fortune = (float) (random(10) + dice) + gFortune - ((float) (currentMillis - previousMillis) / 100.0 - 2.0) - button11.pressRateLastMinute;
-            log("Greens fortune at " + String(currentMillis) + " after " + String(previousMillis) + " is " + String(_fortune));
-            log("dice = " + String(dice) + ", gFortune = " + String(gFortune));
+            log("greensFortune," + String(_fortune) + "," + String(dice) + "," + String(gFortune) + ",");
             if (_fortune > 4)
             {
                 // 50% + (-30% - +30% кости) - (600..0/150-1) чем позже перехват, тем ниже вероятность успеха на -20% - 20%
@@ -1041,8 +1042,7 @@ void in_game()
                     rFortune = rFortune + 0.5;
                 }
             _fortune = (float) (random(10) + dice) + rFortune - ((float) (currentMillis - previousMillis) / 100.0 - 2.0) - button21.pressRateLastMinute;
-            log("Reds fortune at " + String(currentMillis) + " after " + String(previousMillis) + " is " + String(_fortune));
-            log("dice = " + String(dice) + ", rFortune = " + String(rFortune));
+            log("redsFortune," + String(_fortune) + "," + String(dice) + "," + String(rFortune) + ",");
             if (_fortune > 4)
             // 50% + (-30% - +30% кости)
             {
@@ -1069,14 +1069,14 @@ void goal()
     if (x == 0)
     {
         rScore++;
-        log("Reds score at " + String(currentMillis) + " after " + String(previousMillis));
+        log("redsScore," + String(gScore) + "," + String(rScore) + ",,");
         lcd.print("Rds score!" + String(gScore) + " " + String(rScore) + "  ");
         newxy(5, 2, GREENS);
     }
     else
     {
         gScore++;
-        log("Greens score at " + String(currentMillis) + " after " + String(previousMillis));
+        log("greensScore," + String(gScore) + "," + String(rScore) + ",,");
         lcd.print("Grs score!" + String(gScore) + " " + String(rScore) + "  ");
         newxy(6, 2, REDS);
     }
@@ -1086,7 +1086,7 @@ void goal()
 void side()
 {
     currentMillis = millis();
-    log("Side out at " + String(currentMillis) + " after " + String(previousMillis));
+    log("sideOut,,,,");
     pcm("whistle.wav", 250);
     previousMillis = currentMillis;
     reset_buttons_flagClick();
@@ -1168,7 +1168,7 @@ void side()
 void goalline()
 {
     currentMillis = millis();
-    log("Goal line crossed at " + String(currentMillis) + " after " + String(previousMillis));
+    log("goalLine,,,,");
     pcm("whistle.wav", 250);
     previousMillis = currentMillis;
     reset_buttons_flagClick();
@@ -1220,7 +1220,7 @@ void goalline()
 void offside()
 {
     currentMillis = millis();
-    log("Offside at " + String(currentMillis) + " after " + String(previousMillis));
+    log("offside,,,,");
     lcd.setCursor(0, 0);
     lcd.print(F("Offside!        "));
     pcm("whistle.wav", 250);
@@ -1245,7 +1245,7 @@ void nexttime()
 {
     pcm("whistle.wav", 1000);
     currentMillis = millis();
-    log("Start 2nd time at " + String(currentMillis) + " after " + String(previousMillis));
+    log("2ndTime,,,,");
     lcd.setCursor(0, 0);
     lcd.print(F("2nd time begins!"));
     lcd.setCursor(0, 1);
@@ -1281,14 +1281,14 @@ void stop_game()
     ballkick = false;
     gFortune = 0.0;
     rFortune = 0.0;
-    log("Game ends at " + String(currentMillis) + " after " + String(previousMillis));
+    log("gameEnds,,,,");
     if (gScore > rScore)
     {
         lcd.setCursor(0, 0);
         lcd.print(F("Greens win!    "));
         lcd.setCursor(0, 1);
         lcd.print("Gs: " + String(gScore) + "   Rs: " + String(rScore) + " ");
-        log("Greens win with score " + String(gScore) + " vs " + String(rScore) + "!");
+        log("greensWin," + String(gScore) + "," + String(rScore) + ",,");
     }
     else
         if (gScore < rScore)
@@ -1297,7 +1297,7 @@ void stop_game()
             lcd.print(F("Reds win!       "));
             lcd.setCursor(0, 1);
             lcd.print("Gs: " + String(gScore) + "   Rs: " + String(rScore) + " ");
-            log("Reds win with score " + String(rScore) + " vs " + String(gScore) + "!");
+            log("redsWin," + String(gScore) + "," + String(rScore) + ",,");
         }
     else
     {
@@ -1305,7 +1305,7 @@ void stop_game()
         lcd.print(F("Draw game!      "));
         lcd.setCursor(0, 1);
         lcd.print("Gs: " + String(gScore) + "   Rs: " + String(rScore) + " ");
-        log("Draw game with score " + String(gScore) + " vs " + String(rScore) + "!");
+        log("drawGame," + String(gScore) + "," + String(rScore) + ",,");
     }
     delay(7000);
     lcd.setCursor(0, 0);
@@ -1329,6 +1329,8 @@ void stop_game()
     start1stTimeMillis = 0;
     start2ndTimeMillis = 0;
     ballkick = false;
+    tryCatch = false;
+    newxy(4, 1, 0); // потушим светодиод, если горел
 }
 
 void loop()
