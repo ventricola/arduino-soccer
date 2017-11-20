@@ -104,6 +104,7 @@ class Button
         uint16_t minuteCount = 0; // количество изменений состояния  за минуту
         float pressRate = 0.0; // частота изменений состояния
         float pressRateLastMinute = 0.0; // частота изменений состояния за минуту
+        uint16_t stateChangedSecInMinute = 0;
     private:
         uint8_t _buttonCount; // счетчик подтверждений состояния кнопки
         uint8_t _timeButton; // время подтверждения состояния кнопки
@@ -119,6 +120,7 @@ boolean Button::scanState()
 {
     boolean _stateChanged = false;
     uint32_t _currentMillis = 0;
+    uint16_t _currentSecInMinute = 0;
     if (flagPress != digitalRead(_pin))
     {
         // состояние кнопки осталось прежним
@@ -136,13 +138,15 @@ boolean Button::scanState()
             flagPress = !flagPress; // инверсия признака состояния
             _buttonCount = 0; // сброс счетчика подтверждений
             _stateChanged = true;
-            if ((((uint16_t) (_currentMillis / 1000) % 60) < ((uint16_t) (_stateChangedMillis / 1000) % 60)) || ((_currentMillis - _stateChangedMillis) > 60000))
+            _currentSecInMinute = (ceil(_currentMillis / 1000.0) % 60);
+            if ((_currentSecInMinute < stateChangedSecInMinute) || ((_currentMillis - _stateChangedMillis) > 60000))
                 minuteCount = 0;
             _stateChangedMillis = _currentMillis;
+            stateChangedSecInMinute = _currentSecInMinute;
             totalCount++;
             minuteCount++;
             pressRate = (float) totalCount / ((float) (_currentMillis) / 1000.0);
-            pressRateLastMinute = (float) minuteCount / ((float) ((uint16_t) (_currentMillis / 1000) % 60));
+            pressRateLastMinute = (float) minuteCount / (float) stateChangedSecInMinute;
             if (flagPress == true)
                 flagClick = true; // признак клика кнопки
         }
@@ -493,25 +497,61 @@ void timerInterupt()
     String _log = "";
     uint32_t _currentMillis;
     if (button11.scanState())
-        _log = _log + "b11," + String(button11.flagPress) + "," + String(button11.pressRateLastMinute) + "," + ",\r\n"; // вызов метода ожидания стабильного состояния для кнопки
+        _log = _log + "b11," + String(button11.flagPress) + "," + String(button11.pressRateLastMinute) + "," + String(button11.stateChangedSecInMinute) + ","; // вызов метода ожидания стабильного состояния для кнопки
     if (button12.scanState())
-        _log = _log + "b12," + String(button12.flagPress) + "," + String(button12.pressRateLastMinute) + "," + ",\r\n"; // вызов метода ожидания стабильного состояния для кнопки
+    {
+        if (_log.length() > 1)
+            _log = _log + "\r\n";
+        _log = _log + "b12," + String(button12.flagPress) + "," + String(button12.pressRateLastMinute) + "," + String(button12.stateChangedSecInMinute) + ","; // вызов метода ожидания стабильного состояния для кнопки
+    }
     if (button13.scanState())
-        _log = _log + "b13," + String(button13.flagPress) + "," + String(button13.pressRateLastMinute) + "," + ",\r\n"; // вызов метода ожидания стабильного состояния для кнопки
+    {
+        if (_log.length() > 1)
+            _log = _log + "\r\n";
+        _log = _log + "b13," + String(button13.flagPress) + "," + String(button13.pressRateLastMinute) + "," + String(button13.stateChangedSecInMinute) + ","; // вызов метода ожидания стабильного состояния для кнопки
+    }
     if (button14.scanState())
-        _log = _log + "b14," + String(button14.flagPress) + "," + String(button14.pressRateLastMinute) + "," + ",\r\n"; // вызов метода ожидания стабильного состояния для кнопки
+    {
+        if (_log.length() > 1)
+            _log = _log + "\r\n";
+        _log = _log + "b14," + String(button14.flagPress) + "," + String(button14.pressRateLastMinute) + "," + String(button14.stateChangedSecInMinute) + ","; // вызов метода ожидания стабильного состояния для кнопки
+    }
     if (button15.scanState())
-        _log = _log + "b15," + String(button15.flagPress) + "," + String(button15.pressRateLastMinute) + "," + ",\r\n"; // вызов метода ожидания стабильного состояния для кнопки
+    {
+        if (_log.length() > 1)
+            _log = _log + "\r\n";
+        _log = _log + "b15," + String(button15.flagPress) + "," + String(button15.pressRateLastMinute) + "," + String(button15.stateChangedSecInMinute) + ","; // вызов метода ожидания стабильного состояния для кнопки
+    }
     if (button21.scanState())
-        _log = _log + "b21," + String(button21.flagPress) + "," + String(button21.pressRateLastMinute) + "," + ",\r\n"; // вызов метода ожидания стабильного состояния для кнопки
+    {
+        if (_log.length() > 1)
+            _log = _log + "\r\n";
+        _log = _log + "b21," + String(button21.flagPress) + "," + String(button21.pressRateLastMinute) + "," + String(button21.stateChangedSecInMinute) + ","; // вызов метода ожидания стабильного состояния для кнопки
+    }
     if (button22.scanState())
-        _log = _log + "b22," + String(button22.flagPress) + "," + String(button22.pressRateLastMinute) + "," + ",\r\n"; // вызов метода ожидания стабильного состояния для кнопки
+    {
+        if (_log.length() > 1)
+            _log = _log + "\r\n";
+        _log = _log + "b22," + String(button22.flagPress) + "," + String(button22.pressRateLastMinute) + "," + String(button22.stateChangedSecInMinute) + ","; // вызов метода ожидания стабильного состояния для кнопки
+    }
     if (button23.scanState())
-        _log = _log + "b23," + String(button23.flagPress) + "," + String(button23.pressRateLastMinute) + "," + ",\r\n"; // вызов метода ожидания стабильного состояния для кнопки
+    {
+        if (_log.length() > 1)
+            _log = _log + "\r\n";
+        _log = _log + "b23," + String(button23.flagPress) + "," + String(button23.pressRateLastMinute) + "," + String(button23.stateChangedSecInMinute) + ","; // вызов метода ожидания стабильного состояния для кнопки
+    }
     if (button24.scanState())
-        _log = _log + "b24," + String(button24.flagPress) + "," + String(button24.pressRateLastMinute) + "," + ",\r\n"; // вызов метода ожидания стабильного состояния для кнопки
+    {
+        if (_log.length() > 1)
+            _log = _log + "\r\n";
+        _log = _log + "b24," + String(button24.flagPress) + "," + String(button24.pressRateLastMinute) + "," + String(button24.stateChangedSecInMinute) + ","; // вызов метода ожидания стабильного состояния для кнопки
+    }
     if (button25.scanState())
-        _log = _log + "b25," + String(button25.flagPress) + "," + String(button25.pressRateLastMinute) + "," + ",\r\n"; // вызов метода ожидания стабильного состояния для кнопки
+    {
+        if (_log.length() > 1)
+            _log = _log + "\r\n";
+        _log = _log + "b25," + String(button25.flagPress) + "," + String(button25.pressRateLastMinute) + "," + String(button25.stateChangedSecInMinute) + ","; // вызов метода ожидания стабильного состояния для кнопки
+    }
     if (_log.length() > 1)
         log(_log);
 }
@@ -773,7 +813,7 @@ void start_game()
                     lcd.print(F("Reds fail!      "));
                     lcd.setCursor(0, 1);
                     lcd.print(F("Greens win!     "));
-                    log("redsFalsestart,,,,");
+                    log("redsFalsestart," + String(vector1st) + ",,,");
                     game = GAME_PERFORMED;
                     newxy(5, 2, GREENS);
                     vector1st = GREENS;
@@ -785,7 +825,7 @@ void start_game()
                     lcd.print(F("Greens fail!    "));
                     lcd.setCursor(0, 1);
                     lcd.print(F("Reds win!       "));
-                    log("greensFalsestart,,,,");
+                    log("greensFalsestart," + String(vector1st) + ",,,");
                     game = GAME_PERFORMED;
                     newxy(6, 2, REDS);
                     vector1st = REDS;
@@ -819,7 +859,7 @@ void start_game()
                 {
                     lcd.setCursor(0, 0);
                     lcd.print(F("Greens win!     "));
-                    log("greensWin,,,,");
+                    log("greensWin," + String(vector1st) + ",,,");
                     game = GAME_PERFORMED;
                     newxy(5, 2, GREENS);
                     vector1st = GREENS;
@@ -829,7 +869,7 @@ void start_game()
                 {
                     lcd.setCursor(0, 0);
                     lcd.print(F("Reds win!       "));
-                    log("redsWin,,,,");
+                    log("redsWin," + String(vector1st) + ",,,");
                     game = GAME_PERFORMED;
                     newxy(6, 2, REDS);
                     vector1st = REDS;
@@ -842,7 +882,7 @@ void start_game()
 
 void in_game()
 {
-    char _direction = 0;
+    int8_t _direction = 0;
     float _fortune = 0.0;
     lcd.setCursor(0, 1);
     lcd.print("Gs: " + String(gScore) + "   Rs: " + String(rScore) + "   ");
@@ -1245,7 +1285,7 @@ void nexttime()
 {
     pcm("whistle.wav", 1000);
     currentMillis = millis();
-    log("2ndTime,,,,");
+    log("2ndTime," + String(vector1st) + ",,,");
     lcd.setCursor(0, 0);
     lcd.print(F("2nd time begins!"));
     lcd.setCursor(0, 1);
@@ -1328,8 +1368,6 @@ void stop_game()
     previousMillis = 0;
     start1stTimeMillis = 0;
     start2ndTimeMillis = 0;
-    ballkick = false;
-    tryCatch = false;
     newxy(4, 1, 0); // потушим светодиод, если горел
 }
 
