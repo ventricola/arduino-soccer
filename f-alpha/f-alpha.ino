@@ -504,55 +504,55 @@ void timerInterupt()
     if (button12.scanState())
     {
         if (_log.length() > 1)
-            _log = _log + "\r\n";
+            _log = _log + "\r\n,,,,,,,,,,";
         _log = _log + "b12," + String(button12.flagPress) + "," + String(button12.pressRateLastMinute) + "," + String(button12.stateChangedSecInMinute) + "," + String(button12.minuteCount);
     }
     if (button13.scanState())
     {
         if (_log.length() > 1)
-            _log = _log + "\r\n";
+            _log = _log + "\r\n,,,,,,,,,,";
         _log = _log + "b13," + String(button13.flagPress) + "," + String(button13.pressRateLastMinute) + "," + String(button13.stateChangedSecInMinute) + "," + String(button13.minuteCount);
     }
     if (button14.scanState())
     {
         if (_log.length() > 1)
-            _log = _log + "\r\n";
+            _log = _log + "\r\n,,,,,,,,,,";
         _log = _log + "b14," + String(button14.flagPress) + "," + String(button14.pressRateLastMinute) + "," + String(button14.stateChangedSecInMinute) + "," + String(button14.minuteCount);
     }
     if (button15.scanState())
     {
         if (_log.length() > 1)
-            _log = _log + "\r\n";
+            _log = _log + "\r\n,,,,,,,,,,";
         _log = _log + "b15," + String(button15.flagPress) + "," + String(button15.pressRateLastMinute) + "," + String(button15.stateChangedSecInMinute) + "," + String(button15.minuteCount);
     }
     if (button21.scanState())
     {
         if (_log.length() > 1)
-            _log = _log + "\r\n";
+            _log = _log + "\r\n,,,,,,,,,,";
         _log = _log + "b21," + String(button21.flagPress) + "," + String(button21.pressRateLastMinute) + "," + String(button21.stateChangedSecInMinute) + "," + String(button21.minuteCount);
     }
     if (button22.scanState())
     {
         if (_log.length() > 1)
-            _log = _log + "\r\n";
+            _log = _log + "\r\n,,,,,,,,,,";
         _log = _log + "b22," + String(button22.flagPress) + "," + String(button22.pressRateLastMinute) + "," + String(button22.stateChangedSecInMinute) + "," + String(button22.minuteCount);
     }
     if (button23.scanState())
     {
         if (_log.length() > 1)
-            _log = _log + "\r\n";
+            _log = _log + "\r\n,,,,,,,,,,";
         _log = _log + "b23," + String(button23.flagPress) + "," + String(button23.pressRateLastMinute) + "," + String(button23.stateChangedSecInMinute) + "," + String(button23.minuteCount);
     }
     if (button24.scanState())
     {
         if (_log.length() > 1)
-            _log = _log + "\r\n";
+            _log = _log + "\r\n,,,,,,,,,,";
         _log = _log + "b24," + String(button24.flagPress) + "," + String(button24.pressRateLastMinute) + "," + String(button24.stateChangedSecInMinute) + "," + String(button24.minuteCount);
     }
     if (button25.scanState())
     {
         if (_log.length() > 1)
-            _log = _log + "\r\n";
+            _log = _log + "\r\n,,,,,,,,,,";
         _log = _log + "b25," + String(button25.flagPress) + "," + String(button25.pressRateLastMinute) + "," + String(button25.stateChangedSecInMinute) + "," + String(button25.minuteCount);
     }
     if (_log.length() > 1)
