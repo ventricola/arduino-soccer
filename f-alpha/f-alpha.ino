@@ -1140,6 +1140,11 @@ void side()
     {
         if (y == 0)
         {
+            digitalWrite(l3g, HIGH);
+            digitalWrite(l4g, HIGH);
+            delay(500);
+            digitalWrite(l3g, LOW);
+            digitalWrite(l4g, LOW);
             if (x == 1 || x == 2 || x == 3)
             {
                 newxy(2, 1, REDS);
@@ -1156,6 +1161,11 @@ void side()
         }
         else // если y==4
         {
+            digitalWrite(l1g, HIGH);
+            digitalWrite(l2g, HIGH);
+            delay(500);
+            digitalWrite(l1g, LOW);
+            digitalWrite(l2g, LOW);
             if (x == 1 || x == 2 || x == 3)
             {
                 newxy(2, 3, REDS);
@@ -1175,6 +1185,11 @@ void side()
     {
         if (y == 0)
         {
+            digitalWrite(l3r, HIGH);
+            digitalWrite(l4r, HIGH);
+            delay(500);
+            digitalWrite(l3r, LOW);
+            digitalWrite(l4r, LOW);
             if (x == 8 || x == 9 || x == 10)
             {
                 newxy(9, 1, GREENS);
@@ -1191,6 +1206,11 @@ void side()
         }
         else
         {
+            digitalWrite(l1r, HIGH);
+            digitalWrite(l2r, HIGH);
+            delay(500);
+            digitalWrite(l1r, LOW);
+            digitalWrite(l2r, LOW);
             if (x == 8 || x == 9 || x == 10)
             {
                 newxy(9, 3, GREENS);
@@ -1224,11 +1244,21 @@ void goalline()
     {
         if (x == 11)
         {
+            digitalWrite(l2g, HIGH);
+            digitalWrite(l4g, HIGH);
+            delay(500);
+            digitalWrite(l2g, LOW);
+            digitalWrite(l4g, LOW);
             newxy(10, 2, REDS);
         }
         else
             if (x == 0)
             {
+                digitalWrite(l1g, HIGH);
+                digitalWrite(l3g, HIGH);
+                delay(500);
+                digitalWrite(l1g, LOW);
+                digitalWrite(l3g, LOW);
                 if (y == 3 || y == 4 || (y == 2 && random(2) > 0))
                 {
                     newxy(1, 3, REDS);
@@ -1243,11 +1273,21 @@ void goalline()
     else
         if (x == 0)
         {
+            digitalWrite(l1r, HIGH);
+            digitalWrite(l3r, HIGH);
+            delay(500);
+            digitalWrite(l1r, LOW);
+            digitalWrite(l3r, LOW);
             newxy(1, 2, GREENS);
         }
     else
         if (x == 11)
         {
+           digitalWrite(l2r, HIGH);
+            digitalWrite(l4r, HIGH);
+            delay(500);
+            digitalWrite(l2r, LOW);
+            digitalWrite(l4r, LOW);
             if (y == 3 || y == 4 || (y == 2 && random(2) > 0))
             {
                 newxy(10, 3, GREENS);
