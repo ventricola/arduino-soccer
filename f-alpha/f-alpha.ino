@@ -1,6 +1,7 @@
 #include <Wire.h> //include  i2c library
 #include <LiquidCrystal_I2C.h> //include library for work with lcd display via i2c
 #include <MsTimer2.h>
+#include <Gaussian.h>
 // #include <avr/pgmspace.h>
 // #define ENABLE_SD
 // #define ENABLE_PCM
@@ -416,9 +417,9 @@ const int8_t field[12][5][2] =
 };
 
 int8_t game = GAME_START, rScore = 0, gScore = 0, dice = 0,
-x = -1, y = -1, vector = 0, xPrev = -1, yPrev = -1, vectorPrev = 0, vector1st = 0;
+x = -1, y = -1, vector = 0, xPrev = -1, yPrev = -1, vectorPrev = 0, vector1st = 0, aiSide = 0;
 unsigned long currentMillis = 0, previousMillis = 0, start1stTimeMillis = 0, start2ndTimeMillis = 0;
-boolean ballkick = false, debug = true, sdEnable = false, tryCatch = false;
+boolean ballkick = false, debug = true, sdEnable = false, tryCatch = false, ai = true;
 String logFileName;
 float gFortune = 0.0, rFortune = 0.0;
 
@@ -778,6 +779,16 @@ void start_game()
     button21.flagClick || button22.flagClick || button23.flagClick || button24.flagClick || button25.flagClick) || currentMillis - previousMillis >= 30000)
     {
     }
+    ai = (boolean) !digitalRead(MODE_PIN);
+    if (ai == true && (button11.flagClick || button12.flagClick || button13.flagClick || button14.flagClick || button15.flagClick))
+    {
+        aiSide = -1;
+    }
+    else if (ai == true)
+    {
+        aiSide = 1;
+    }
+
     reset_buttons_flagClick();
     log(F("keycowboys,,,,"));
     lcd.setCursor(0, 0);
