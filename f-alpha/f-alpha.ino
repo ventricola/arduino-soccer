@@ -94,6 +94,8 @@
 #define L4R_PIN 11
 #define L4G_PIN 12
 #define L4B_PIN 13
+#define MEAN_DRAW_RESPONSE 1.6147 // среднее значение для рогзыгрыша мяча
+#define VARIENSE_DRAW_RESPONSE 0.3972
 class Button
 {
     public:
@@ -175,6 +177,7 @@ volatile Button button22(B22_PIN, 3);
 volatile Button button23(B23_PIN, 3);
 volatile Button button24(B24_PIN, 3);
 volatile Button button25(B25_PIN, 3);
+volatile Gaussian drawResponseGaussian = Gaussian(MEAN_DRAW_RESPONSE, VARIENSE_DRAW_RESPONSE);
 
 #ifdef ENABLE_PCM
 TMRpcm audio; // create an object for use in this sketch
@@ -500,64 +503,75 @@ void timerInterupt()
     String _log = "";
     uint32_t _currentMillis;
     // вызов методов обработки состояния кнопки
-    if (button11.scanState())
-        _log = _log + "b11," + String(button11.flagPress) + "," + String(button11.pressRateLastMinute) + "," + String(button11.stateChangedSecInMinute) + "," + String(button11.minuteCount);
-    if (button12.scanState())
+    if (ai && aiSide == 1)
     {
-        if (_log.length() > 1)
-            _log = _log + "\r\n,,,,,,,,,,";
-        _log = _log + "b12," + String(button12.flagPress) + "," + String(button12.pressRateLastMinute) + "," + String(button12.stateChangedSecInMinute) + "," + String(button12.minuteCount);
     }
-    if (button13.scanState())
-    {
-        if (_log.length() > 1)
-            _log = _log + "\r\n,,,,,,,,,,";
-        _log = _log + "b13," + String(button13.flagPress) + "," + String(button13.pressRateLastMinute) + "," + String(button13.stateChangedSecInMinute) + "," + String(button13.minuteCount);
-    }
-    if (button14.scanState())
-    {
-        if (_log.length() > 1)
-            _log = _log + "\r\n,,,,,,,,,,";
-        _log = _log + "b14," + String(button14.flagPress) + "," + String(button14.pressRateLastMinute) + "," + String(button14.stateChangedSecInMinute) + "," + String(button14.minuteCount);
-    }
-    if (button15.scanState())
-    {
-        if (_log.length() > 1)
-            _log = _log + "\r\n,,,,,,,,,,";
-        _log = _log + "b15," + String(button15.flagPress) + "," + String(button15.pressRateLastMinute) + "," + String(button15.stateChangedSecInMinute) + "," + String(button15.minuteCount);
-    }
-    if (button21.scanState())
-    {
-        if (_log.length() > 1)
-            _log = _log + "\r\n,,,,,,,,,,";
-        _log = _log + "b21," + String(button21.flagPress) + "," + String(button21.pressRateLastMinute) + "," + String(button21.stateChangedSecInMinute) + "," + String(button21.minuteCount);
-    }
-    if (button22.scanState())
-    {
-        if (_log.length() > 1)
-            _log = _log + "\r\n,,,,,,,,,,";
-        _log = _log + "b22," + String(button22.flagPress) + "," + String(button22.pressRateLastMinute) + "," + String(button22.stateChangedSecInMinute) + "," + String(button22.minuteCount);
-    }
-    if (button23.scanState())
-    {
-        if (_log.length() > 1)
-            _log = _log + "\r\n,,,,,,,,,,";
-        _log = _log + "b23," + String(button23.flagPress) + "," + String(button23.pressRateLastMinute) + "," + String(button23.stateChangedSecInMinute) + "," + String(button23.minuteCount);
-    }
-    if (button24.scanState())
-    {
-        if (_log.length() > 1)
-            _log = _log + "\r\n,,,,,,,,,,";
-        _log = _log + "b24," + String(button24.flagPress) + "," + String(button24.pressRateLastMinute) + "," + String(button24.stateChangedSecInMinute) + "," + String(button24.minuteCount);
-    }
-    if (button25.scanState())
-    {
-        if (_log.length() > 1)
-            _log = _log + "\r\n,,,,,,,,,,";
-        _log = _log + "b25," + String(button25.flagPress) + "," + String(button25.pressRateLastMinute) + "," + String(button25.stateChangedSecInMinute) + "," + String(button25.minuteCount);
-    }
-    if (_log.length() > 1)
-        log(_log);
+    else
+        if (!(ai && aiSide == 1))
+        {
+            if (button11.scanState())
+                _log = _log + "b11," + String(button11.flagPress) + "," + String(button11.pressRateLastMinute) + "," + String(button11.stateChangedSecInMinute) + "," + String(button11.minuteCount);
+            if (button12.scanState())
+            {
+                if (_log.length() > 1)
+                    _log = _log + "\r\n,,,,,,,,,,";
+                _log = _log + "b12," + String(button12.flagPress) + "," + String(button12.pressRateLastMinute) + "," + String(button12.stateChangedSecInMinute) + "," + String(button12.minuteCount);
+            }
+            if (button13.scanState())
+            {
+                if (_log.length() > 1)
+                    _log = _log + "\r\n,,,,,,,,,,";
+                _log = _log + "b13," + String(button13.flagPress) + "," + String(button13.pressRateLastMinute) + "," + String(button13.stateChangedSecInMinute) + "," + String(button13.minuteCount);
+            }
+            if (button14.scanState())
+            {
+                if (_log.length() > 1)
+                    _log = _log + "\r\n,,,,,,,,,,";
+                _log = _log + "b14," + String(button14.flagPress) + "," + String(button14.pressRateLastMinute) + "," + String(button14.stateChangedSecInMinute) + "," + String(button14.minuteCount);
+            }
+            if (button15.scanState())
+            {
+                if (_log.length() > 1)
+                    _log = _log + "\r\n,,,,,,,,,,";
+                _log = _log + "b15," + String(button15.flagPress) + "," + String(button15.pressRateLastMinute) + "," + String(button15.stateChangedSecInMinute) + "," + String(button15.minuteCount);
+            }
+        }
+    else
+        if (!(ai && aiSide == -1))
+        {
+            if (button21.scanState())
+            {
+                if (_log.length() > 1)
+                    _log = _log + "\r\n,,,,,,,,,,";
+                _log = _log + "b21," + String(button21.flagPress) + "," + String(button21.pressRateLastMinute) + "," + String(button21.stateChangedSecInMinute) + "," + String(button21.minuteCount);
+            }
+            if (button22.scanState())
+            {
+                if (_log.length() > 1)
+                    _log = _log + "\r\n,,,,,,,,,,";
+                _log = _log + "b22," + String(button22.flagPress) + "," + String(button22.pressRateLastMinute) + "," + String(button22.stateChangedSecInMinute) + "," + String(button22.minuteCount);
+            }
+            if (button23.scanState())
+            {
+                if (_log.length() > 1)
+                    _log = _log + "\r\n,,,,,,,,,,";
+                _log = _log + "b23," + String(button23.flagPress) + "," + String(button23.pressRateLastMinute) + "," + String(button23.stateChangedSecInMinute) + "," + String(button23.minuteCount);
+            }
+            if (button24.scanState())
+            {
+                if (_log.length() > 1)
+                    _log = _log + "\r\n,,,,,,,,,,";
+                _log = _log + "b24," + String(button24.flagPress) + "," + String(button24.pressRateLastMinute) + "," + String(button24.stateChangedSecInMinute) + "," + String(button24.minuteCount);
+            }
+            if (button25.scanState())
+            {
+                if (_log.length() > 1)
+                    _log = _log + "\r\n,,,,,,,,,,";
+                _log = _log + "b25," + String(button25.flagPress) + "," + String(button25.pressRateLastMinute) + "," + String(button25.stateChangedSecInMinute) + "," + String(button25.minuteCount);
+            }
+            if (_log.length() > 1)
+                log(_log);
+        }
 }
 
 void setup()
@@ -784,11 +798,12 @@ void start_game()
     {
         aiSide = -1;
     }
-    else if (ai == true)
-    {
-        aiSide = 1;
-    }
-
+    else
+        if (ai == true)
+        {
+            aiSide = 1;
+        }
+    // double myRandomX = myGaussian.random();
     reset_buttons_flagClick();
     log(F("keycowboys,,,,"));
     lcd.setCursor(0, 0);
@@ -1294,7 +1309,7 @@ void goalline()
     else
         if (x == 11)
         {
-           digitalWrite(l2r, HIGH);
+            digitalWrite(l2r, HIGH);
             digitalWrite(l4r, HIGH);
             delay(500);
             digitalWrite(l2r, LOW);
